@@ -1,15 +1,16 @@
-import { site } from '../data/site';
+import { useSite } from '../context/SiteContext';
 import { whatsappChatUrl } from '../lib/whatsapp';
 
-const contacts = [
-  { label: 'WhatsApp', value: site.whatsappDisplay, href: whatsappChatUrl('Hi Khan Scents — I have a question.') },
-  { label: 'Phone', value: site.phone, href: `tel:${site.phone.replace(/\s/g, '')}` },
-  { label: 'Email', value: site.email, href: `mailto:${site.email}` },
-  { label: 'Instagram', value: '@khanscents', href: site.instagram },
-  { label: 'Facebook', value: 'Khan Scents', href: site.facebook },
-];
-
 export function ContactPage() {
+  const { site } = useSite();
+
+  const contacts = [
+    { label: 'WhatsApp', value: site.whatsappDisplay, href: whatsappChatUrl('Hi Khan Scents — I have a question.', site.whatsapp) },
+    { label: 'Phone', value: site.phone, href: `tel:${site.phone.replace(/\s/g, '')}` },
+    { label: 'Email', value: site.email, href: `mailto:${site.email}` },
+    { label: 'Instagram', value: '@khanscents', href: site.instagram },
+    { label: 'Facebook', value: 'Khan Scents', href: site.facebook },
+  ];
   return (
     <div className="pt-24 pb-20 bg-bg min-h-screen">
       <div className="container-page max-w-2xl">
@@ -35,7 +36,7 @@ export function ContactPage() {
             </li>
           ))}
         </ul>
-        <a href={whatsappChatUrl('Hi Khan Scents!')} target="_blank" rel="noreferrer" className="btn-primary mt-8 inline-flex">
+        <a href={whatsappChatUrl('Hi Khan Scents!', site.whatsapp)} target="_blank" rel="noreferrer" className="btn-primary mt-8 inline-flex">
           Chat on WhatsApp
         </a>
       </div>

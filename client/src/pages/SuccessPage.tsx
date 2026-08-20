@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
-import { site } from '../data/site';
+import { useSite } from '../context/SiteContext';
 import { whatsappChatUrl } from '../lib/whatsapp';
 
 export function SuccessPage() {
+  const { site } = useSite();
   const location = useLocation();
   const orderId = (location.state as { orderId?: string } | null)?.orderId;
 
@@ -15,7 +16,7 @@ export function SuccessPage() {
         Your order has been saved. Send the WhatsApp message so we can confirm and dispatch within 1–2 working days.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <a href={whatsappChatUrl('Hi — confirming my Khan Scents order.')} target="_blank" rel="noreferrer" className="btn-primary">
+        <a href={whatsappChatUrl('Hi — confirming my Khan Scents order.', site.whatsapp)} target="_blank" rel="noreferrer" className="btn-primary">
           Open WhatsApp
         </a>
         <Link to="/shop" className="btn-outline">Continue shopping</Link>

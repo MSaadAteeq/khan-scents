@@ -1,30 +1,7 @@
 import { Router } from "express";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ORDERS_FILE = path.join(__dirname, "..", "data", "orders.json");
+import { getOrders, saveOrders } from "../lib/seed.js";
 
 const router = Router();
-
-function readOrders() {
-  try {
-    const raw = fs.readFileSync(ORDERS_FILE, "utf-8");
-    return JSON.parse(raw || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function writeOrders(orders) {
-  fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2), "utf-8");
-}
-
-router.get("/", (_req, res) => {
-  res.json(readOrders());
-});
 
 router.post("/", (req, res) => {
   const { customer, items, deliveryFee, total, paymentMethod } = req.body || {};
@@ -37,7 +14,8 @@ router.post("/", (req, res) => {
     return res.status(400).json({ error: "Order must contain at least one item." });
   }
 
-  const orders = readOrders();
+  const orders = getOrders();
+  const fee = deliveryFee ?? 300;
 
   const newOrder = {
     id: `KS-${Date.now()}`,
@@ -50,15 +28,15 @@ router.post("/", (req, res) => {
       postalCode: customer.postalCode || "",
     },
     items,
-    deliveryFee: deliveryFee ?? 300,
-    total: total ?? items.reduce((sum, it) => sum + it.price * it.quantity, 0) + (deliveryFee ?? 300),
+    deliveryFee: fee,
+    total: total ?? items.reduce((sum, it) => sum + it.price * it.quantity, 0) + fee,
     paymentMethod: paymentMethod || "Cash on Delivery",
     status: "pending",
     createdAt: new Date().toISOString(),
   };
 
-  orders.push(newOrder);
-  writeOrders(orders);
+  orders.unshift(newOrder);
+  saveOrders(orders);
 
   res.status(201).json(newOrder);
 });

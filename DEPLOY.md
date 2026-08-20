@@ -79,11 +79,20 @@ git push -u origin main
 
 5. Click **Create Static Site**.
 
-6. **SPA routing** (required for `/shop`, `/product/...`, etc.):
-   - In the static site dashboard → **Redirects/Rewrites**
-   - Add rule: **Source** `/*` → **Destination** `/index.html` → **Action** `Rewrite`
+6. **SPA routing** (required — `/about`, `/shop`, etc. must work on refresh):
 
-   *(The repo includes `client/public/_redirects` which Render may pick up automatically.)*
+   Render **Static Sites do not read** the `_redirects` file. You must add a rewrite rule:
+
+   - Open your static site in the [Render Dashboard](https://dashboard.render.com)
+   - Go to **Redirects / Rewrites**
+   - Add a rule:
+     - **Source:** `/*`
+     - **Destination:** `/index.html`
+     - **Action:** `Rewrite`
+
+   Save — no redeploy needed. Refresh `/about` and it should load.
+
+   *(If you deploy via Blueprint from `render.yaml`, the rewrite rule is included automatically.)*
 
 7. Wait for deploy. Open your frontend URL.
 

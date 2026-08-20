@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { site } from '../../data/site';
+import { useSite } from '../../context/SiteContext';
 import { whatsappChatUrl } from '../../lib/whatsapp';
 
 export function Footer() {
+  const { site } = useSite();
   return (
     <footer className="bg-surface border-t border-border mt-auto">
       <div className="container-page py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -25,7 +26,7 @@ export function Footer() {
           <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4">Contact</p>
           <ul className="space-y-2.5 text-sm text-text-muted">
             <li>
-              <a href={whatsappChatUrl()} target="_blank" rel="noreferrer" className="hover:text-text transition-colors">
+              <a href={whatsappChatUrl(undefined, site.whatsapp)} target="_blank" rel="noreferrer" className="hover:text-text transition-colors">
                 {site.whatsappDisplay}
               </a>
             </li>

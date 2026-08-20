@@ -1,8 +1,9 @@
-import { site } from '../../data/site';
+import { useSite } from '../../context/SiteContext';
 import { instagramImages } from '../../data/images';
 import { ProductImage } from '../ui/ProductImage';
 
 export function Instagram() {
+  const { site } = useSite();
   return (
     <section className="py-20 md:py-28 bg-surface">
       <div className="container-page">

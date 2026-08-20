@@ -237,6 +237,11 @@ textarea::placeholder {
   color: var(--color-text-muted);
 }
 
+.input-field {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+}
+
 /* legacy alias used across pages */
 .btn-gold {
   display: inline-flex;

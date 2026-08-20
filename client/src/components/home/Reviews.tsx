@@ -1,6 +1,7 @@
-import { reviews } from '../../data/site';
+import { useSite } from '../../context/SiteContext';
 
 export function Reviews() {
+  const { reviews } = useSite();
   return (
     <section className="py-20 md:py-28 bg-surface-muted">
       <div className="container-page">
@@ -11,7 +12,7 @@ export function Reviews() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {reviews.map((review) => (
-            <blockquote key={review.name} className="card p-6">
+            <blockquote key={review.id} className="card p-6">
               <p className="text-accent text-sm mb-3">
                 {'★'.repeat(review.rating)}
                 <span className="text-border">{'★'.repeat(5 - review.rating)}</span>

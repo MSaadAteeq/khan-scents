@@ -1,10 +1,10 @@
-import { site } from '../data/site';
+import { site as defaultSite } from '../data/site';
 import type { CartItem, CustomerDetails } from '../types/product';
 import { formatPrice } from './format';
 
-export function whatsappChatUrl(message?: string): string {
+export function whatsappChatUrl(message?: string, whatsapp = defaultSite.whatsapp): string {
   const text = encodeURIComponent(message || 'Hi Khan Scents!');
-  return `https://wa.me/${site.whatsapp}?text=${text}`;
+  return `https://wa.me/${whatsapp}?text=${text}`;
 }
 
 export function buildWhatsAppOrderUrl(
@@ -13,6 +13,7 @@ export function buildWhatsAppOrderUrl(
   items: CartItem[],
   deliveryFee: number,
   total: number,
+  whatsapp = defaultSite.whatsapp,
 ): string {
   const lines = [
     `*New Order — Khan Scents*`,
@@ -36,5 +37,5 @@ export function buildWhatsAppOrderUrl(
     `Payment: Cash on Delivery`,
   ].filter(Boolean);
 
-  return whatsappChatUrl(lines.join('\n'));
+  return whatsappChatUrl(lines.join('\n'), whatsapp);
 }

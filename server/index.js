@@ -5,6 +5,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 import productsRouter from "./routes/products.js";
 import ordersRouter from "./routes/orders.js";
+import siteRouter from "./routes/site.js";
+import adminRouter from "./routes/admin.js";
+import { ensureDataFiles } from "./lib/seed.js";
+
+ensureDataFiles();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.resolve(__dirname, "../client/dist");
@@ -37,6 +42,8 @@ if (!serveClient) {
 
 app.use("/api/products", productsRouter);
 app.use("/api/orders", ordersRouter);
+app.use("/api/site", siteRouter);
+app.use("/api/admin", adminRouter);
 
 if (serveClient) {
   app.use(express.static(clientDist));

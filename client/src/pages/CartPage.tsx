@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { site } from '../data/site';
+import { useSite } from '../context/SiteContext';
 import { formatPrice } from '../lib/format';
 import { ProductImage } from '../components/ui/ProductImage';
 
 export function CartPage() {
   const { items, subtotal, updateQuantity, removeItem } = useCart();
+  const { site } = useSite();
   const delivery = site.deliveryFee;
   const total = subtotal + (items.length ? delivery : 0);
 

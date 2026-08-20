@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { site } from '../../data/site';
+import { useSite } from '../../context/SiteContext';
 import { assetUrl } from '../../lib/assets';
 
 export function Hero() {
+  const { site } = useSite();
   const [videoFailed, setVideoFailed] = useState(false);
   const poster = assetUrl(site.heroPoster);
 

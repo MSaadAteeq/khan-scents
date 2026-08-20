@@ -1,20 +1,14 @@
 import { Router } from "express";
-import { products as rawProducts } from "../data/products.js";
-import { productImages, imageFallback } from "../data/images.js";
-
-const products = rawProducts.map((p) => ({
-  ...p,
-  images: productImages[p.slug] ?? [imageFallback, imageFallback],
-}));
+import { getProducts } from "../lib/seed.js";
 
 const router = Router();
 
 router.get("/", (_req, res) => {
-  res.json(products);
+  res.json(getProducts());
 });
 
 router.get("/:slug", (req, res) => {
-  const product = products.find((p) => p.slug === req.params.slug);
+  const product = getProducts().find((p) => p.slug === req.params.slug);
   if (!product) {
     return res.status(404).json({ error: "Product not found" });
   }

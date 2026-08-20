@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TrustStrip } from '../components/ui/TrustStrip';
 import { useCart } from '../context/CartContext';
-import { site } from '../data/site';
+import { useSite } from '../context/SiteContext';
 import { submitOrder } from '../lib/api';
 import { formatPrice } from '../lib/format';
 import { buildWhatsAppOrderUrl } from '../lib/whatsapp';
@@ -19,6 +19,7 @@ const empty: CustomerDetails = {
 
 export function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
+  const { site } = useSite();
   const navigate = useNavigate();
   const [form, setForm] = useState<CustomerDetails>(empty);
   const [submitting, setSubmitting] = useState(false);
@@ -55,7 +56,7 @@ export function CheckoutPage() {
         paymentMethod: 'Cash on Delivery',
       });
 
-      const waUrl = buildWhatsAppOrderUrl(order.id, form, items, delivery, total);
+      const waUrl = buildWhatsAppOrderUrl(order.id, form, items, delivery, total, site.whatsapp);
       clearCart();
       window.open(waUrl, '_blank');
       navigate('/checkout/success', { state: { orderId: order.id } });

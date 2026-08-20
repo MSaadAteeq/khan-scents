@@ -47,3 +47,49 @@ export interface OrderPayload {
   total: number;
   paymentMethod: string;
 }
+
+export interface SiteSettings {
+  name: string;
+  tagline: string;
+  whatsapp: string;
+  whatsappDisplay: string;
+  email: string;
+  phone: string;
+  instagram: string;
+  facebook: string;
+  deliveryFee: number;
+  address: string;
+  heroVideo: string;
+  heroPoster: string;
+}
+
+export interface Review {
+  id: string;
+  name: string;
+  city: string;
+  rating: number;
+  text: string;
+}
+
+export interface Faq {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+export interface SiteData {
+  site: SiteSettings;
+  reviews: Review[];
+  faqs: Faq[];
+}
+
+export interface Order {
+  id: string;
+  customer: CustomerDetails;
+  items: OrderPayload["items"];
+  deliveryFee: number;
+  total: number;
+  paymentMethod: string;
+  status: string;
+  createdAt: string;
+}
