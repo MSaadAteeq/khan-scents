@@ -9,7 +9,7 @@ export const site = {
   facebook: "https://facebook.com/khanscents",
   deliveryFee: 300,
   address: "Pakistan — Nationwide Delivery",
-  heroVideo: "https://assets.mixkit.co/videos/46051/46051-720.mp4",
+  heroVideo: "https://assets.mixkit.co/videos/48729/48729-720.mp4",
   heroPoster: "/images/hero-poster.jpg",
 };
 

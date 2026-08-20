@@ -28,7 +28,7 @@ export function Hero() {
           <source src={site.heroVideo} type="video/mp4" />
         </video>
       )}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/40 to-black/20" />
 
       <div className="relative container-page w-full pt-20">
         <motion.div
