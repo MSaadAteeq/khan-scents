@@ -3,13 +3,13 @@ import cors from "cors";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { connectDB } from "./db/connect.js";
+import { seedDatabase } from "./lib/seedMongo.js";
 import productsRouter from "./routes/products.js";
 import ordersRouter from "./routes/orders.js";
 import siteRouter from "./routes/site.js";
 import adminRouter from "./routes/admin.js";
-import { ensureDataFiles } from "./lib/seed.js";
-
-ensureDataFiles();
+import authRouter from "./routes/auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.resolve(__dirname, "../client/dist");
@@ -40,6 +40,7 @@ if (!serveClient) {
   });
 }
 
+app.use("/api/auth", authRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/site", siteRouter);
@@ -64,6 +65,15 @@ if (serveClient) {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Khan Scents API running on port ${PORT}`);
+async function start() {
+  await connectDB();
+  await seedDatabase();
+  app.listen(PORT, () => {
+    console.log(`Khan Scents API running on port ${PORT}`);
+  });
+}
+
+start().catch((err) => {
+  console.error("Failed to start server:", err.message);
+  process.exit(1);
 });

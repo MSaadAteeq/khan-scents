@@ -11,7 +11,7 @@ const links = [
 ];
 
 export function AdminLayout() {
-  const { username, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <div className="min-h-screen bg-bg">
@@ -24,7 +24,7 @@ export function AdminLayout() {
             <Link to="/" className="text-sm text-text-muted hover:text-text">
               View store
             </Link>
-            <span className="text-sm text-text-muted hidden sm:inline">{username}</span>
+            <span className="text-sm text-text-muted hidden sm:inline">{user?.name}</span>
             <button type="button" onClick={logout} className="text-sm text-accent hover:underline">
               Log out
             </button>

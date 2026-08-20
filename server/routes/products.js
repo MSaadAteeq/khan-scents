@@ -1,18 +1,19 @@
 import { Router } from "express";
-import { getProducts } from "../lib/seed.js";
+import { Product, formatProduct } from "../models/Product.js";
 
 const router = Router();
 
-router.get("/", (_req, res) => {
-  res.json(getProducts());
+router.get("/", async (_req, res) => {
+  const products = await Product.find().sort({ createdAt: 1 });
+  res.json(products.map(formatProduct));
 });
 
-router.get("/:slug", (req, res) => {
-  const product = getProducts().find((p) => p.slug === req.params.slug);
+router.get("/:slug", async (req, res) => {
+  const product = await Product.findOne({ slug: req.params.slug });
   if (!product) {
     return res.status(404).json({ error: "Product not found" });
   }
-  res.json(product);
+  res.json(formatProduct(product));
 });
 
 export default router;

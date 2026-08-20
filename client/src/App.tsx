@@ -6,9 +6,9 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { SiteProvider } from './context/SiteContext';
 import { AboutPage } from './pages/AboutPage';
+import { AccountPage } from './pages/AccountPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminFaqsPage } from './pages/admin/AdminFaqsPage';
-import { AdminLoginPage } from './pages/admin/AdminLoginPage';
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 import { AdminProductFormPage } from './pages/admin/AdminProductFormPage';
 import { AdminProductsPage } from './pages/admin/AdminProductsPage';
@@ -18,6 +18,7 @@ import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
+import { LoginPage } from './pages/LoginPage';
 import { ProductPage } from './pages/ProductPage';
 import { ShippingPage } from './pages/ShippingPage';
 import { ShopPage } from './pages/ShopPage';
@@ -30,7 +31,9 @@ export default function App() {
         <AuthProvider>
           <CartProvider>
             <Routes>
-              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/admin/login" element={<Navigate to="/login?redirect=/admin" replace />} />
+
               <Route path="/admin" element={<AdminGuard />}>
                 <Route element={<AdminLayout />}>
                   <Route index element={<AdminDashboardPage />} />
@@ -54,6 +57,7 @@ export default function App() {
                 <Route path="cart" element={<CartPage />} />
                 <Route path="checkout" element={<CheckoutPage />} />
                 <Route path="checkout/success" element={<SuccessPage />} />
+                <Route path="account" element={<AccountPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Routes>

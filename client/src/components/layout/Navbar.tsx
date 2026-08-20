@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 
 const links = [
@@ -33,6 +34,7 @@ function MenuIcon({ open, light }: { open: boolean; light: boolean }) {
 
 export function Navbar() {
   const { count } = useCart();
+  const { user, isAdmin } = useAuth();
   const { pathname } = useLocation();
   const isHome = pathname === '/';
   const [scrolled, setScrolled] = useState(false);
@@ -97,6 +99,34 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-5">
+          {isAdmin ? (
+            <Link
+              to="/admin"
+              className={`text-sm font-medium hidden sm:inline ${
+                lightText ? 'text-white hover:text-white/90' : 'text-text-muted hover:text-text'
+              }`}
+            >
+              Admin
+            </Link>
+          ) : user ? (
+            <Link
+              to="/account"
+              className={`text-sm font-medium hidden sm:inline ${
+                lightText ? 'text-white hover:text-white/90' : 'text-text-muted hover:text-text'
+              }`}
+            >
+              Account
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className={`text-sm font-medium hidden sm:inline ${
+                lightText ? 'text-white hover:text-white/90' : 'text-text-muted hover:text-text'
+              }`}
+            >
+              Sign in
+            </Link>
+          )}
           <Link
             to="/cart"
             className={`relative text-sm font-medium ${
@@ -134,6 +164,19 @@ export function Navbar() {
               {link.label}
             </NavLink>
           ))}
+          {isAdmin ? (
+            <Link to="/admin" onClick={() => setMenuOpen(false)} className="block text-2xl font-semibold text-text">
+              Admin
+            </Link>
+          ) : user ? (
+            <Link to="/account" onClick={() => setMenuOpen(false)} className="block text-2xl font-semibold text-text">
+              Account
+            </Link>
+          ) : (
+            <Link to="/login" onClick={() => setMenuOpen(false)} className="block text-2xl font-semibold text-text">
+              Sign in
+            </Link>
+          )}
         </div>
       )}
     </header>

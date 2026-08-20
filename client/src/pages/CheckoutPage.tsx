@@ -1,6 +1,7 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { TrustStrip } from '../components/ui/TrustStrip';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useSite } from '../context/SiteContext';
 import { submitOrder } from '../lib/api';
@@ -19,11 +20,23 @@ const empty: CustomerDetails = {
 
 export function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
+  const { user } = useAuth();
   const { site } = useSite();
   const navigate = useNavigate();
   const [form, setForm] = useState<CustomerDetails>(empty);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setForm((f) => ({
+        ...f,
+        fullName: f.fullName || user.name,
+        email: f.email || user.email,
+        phone: f.phone || user.phone || f.phone,
+      }));
+    }
+  }, [user]);
 
   const delivery = site.deliveryFee;
   const total = subtotal + delivery;

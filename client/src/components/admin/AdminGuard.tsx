@@ -1,8 +1,9 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export function AdminGuard() {
-  const { username, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -12,8 +13,12 @@ export function AdminGuard() {
     );
   }
 
-  if (!username) {
-    return <Navigate to="/admin/login" replace />;
+  if (!user) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/account" replace />;
   }
 
   return <Outlet />;

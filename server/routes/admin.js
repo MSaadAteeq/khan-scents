@@ -1,55 +1,32 @@
 import { Router } from "express";
-import {
-  getProducts,
-  saveProducts,
-  getSiteData,
-  saveSiteData,
-  getOrders,
-  saveOrders,
-  slugify,
-  nextId,
-} from "../lib/seed.js";
-import { requireAdmin, signToken, verifyCredentials } from "../middleware/auth.js";
+import { Product, formatProduct } from "../models/Product.js";
+import { getSiteDoc, formatSite } from "../models/Site.js";
+import { Order, formatOrder } from "../models/Order.js";
+import { slugify, nextItemId } from "../lib/seedMongo.js";
+import { requireAuth, requireAdmin } from "../middleware/auth.js";
+import { sendOrderStatusEmail } from "../lib/email.js";
 
 const router = Router();
 
-router.post("/login", (req, res) => {
-  const { username, password } = req.body || {};
-  if (!username || !password) {
-    return res.status(400).json({ error: "Username and password required" });
-  }
-  if (!verifyCredentials(username, password)) {
-    return res.status(401).json({ error: "Invalid credentials" });
-  }
-  res.json({ token: signToken(username), username });
-});
-
-router.get("/me", requireAdmin, (req, res) => {
-  res.json({ username: req.admin.username, role: req.admin.role });
-});
+router.use(requireAuth, requireAdmin);
 
 // ——— Products ———
-router.get("/products", requireAdmin, (_req, res) => {
-  res.json(getProducts());
+router.get("/products", async (_req, res) => {
+  const products = await Product.find().sort({ createdAt: 1 });
+  res.json(products.map(formatProduct));
 });
 
-router.post("/products", requireAdmin, (req, res) => {
-  const products = getProducts();
+router.post("/products", async (req, res) => {
   const body = req.body || {};
-
   if (!body.name?.trim()) {
     return res.status(400).json({ error: "Product name is required" });
   }
 
   let slug = body.slug?.trim() || slugify(body.name);
-  if (products.some((p) => p.slug === slug)) {
-    slug = `${slug}-${Date.now()}`;
-  }
+  const existing = await Product.findOne({ slug });
+  if (existing) slug = `${slug}-${Date.now()}`;
 
-  const product = {
-    id: String(
-      Math.max(0, ...products.map((p) => parseInt(p.id, 10)).filter((n) => !Number.isNaN(n))) + 1,
-    ),
+  const product = await Product.create({
     slug,
     name: body.name.trim(),
     inspiredBy: body.inspiredBy?.trim() || "",
@@ -62,175 +39,170 @@ router.post("/products", requireAdmin, (req, res) => {
     images: Array.isArray(body.images) ? body.images.filter(Boolean) : ["/images/products/fallback.jpg"],
     bestSeller: Boolean(body.bestSeller),
     description: body.description?.trim() || "",
-  };
+  });
 
-  products.push(product);
-  saveProducts(products);
-  res.status(201).json(product);
+  res.status(201).json(formatProduct(product));
 });
 
-router.put("/products/:id", requireAdmin, (req, res) => {
-  const products = getProducts();
-  const idx = products.findIndex((p) => p.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: "Product not found" });
+router.put("/products/:id", async (req, res) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) return res.status(404).json({ error: "Product not found" });
 
-  const current = products[idx];
   const body = req.body || {};
-  const slug = body.slug?.trim() || current.slug;
+  const slug = body.slug?.trim() || product.slug;
 
-  if (products.some((p) => p.slug === slug && p.id !== current.id)) {
-    return res.status(400).json({ error: "Slug already in use" });
-  }
+  const slugTaken = await Product.findOne({ slug, _id: { $ne: product._id } });
+  if (slugTaken) return res.status(400).json({ error: "Slug already in use" });
 
-  products[idx] = {
-    ...current,
-    slug,
-    name: body.name?.trim() ?? current.name,
-    inspiredBy: body.inspiredBy?.trim() ?? current.inspiredBy,
-    size: body.size?.trim() ?? current.size,
-    price: body.price !== undefined ? Number(body.price) : current.price,
-    gender: body.gender ?? current.gender,
-    notes: Array.isArray(body.notes) ? body.notes : current.notes,
-    longevity: body.longevity?.trim() ?? current.longevity,
-    howToUse: body.howToUse?.trim() ?? current.howToUse,
-    images: Array.isArray(body.images) ? body.images.filter(Boolean) : current.images,
-    bestSeller: body.bestSeller !== undefined ? Boolean(body.bestSeller) : current.bestSeller,
-    description: body.description?.trim() ?? current.description,
-  };
+  product.slug = slug;
+  if (body.name !== undefined) product.name = body.name.trim();
+  if (body.inspiredBy !== undefined) product.inspiredBy = body.inspiredBy.trim();
+  if (body.size !== undefined) product.size = body.size.trim();
+  if (body.price !== undefined) product.price = Number(body.price);
+  if (body.gender !== undefined) product.gender = body.gender;
+  if (body.notes !== undefined) product.notes = body.notes;
+  if (body.longevity !== undefined) product.longevity = body.longevity.trim();
+  if (body.howToUse !== undefined) product.howToUse = body.howToUse.trim();
+  if (body.images !== undefined) product.images = body.images.filter(Boolean);
+  if (body.bestSeller !== undefined) product.bestSeller = Boolean(body.bestSeller);
+  if (body.description !== undefined) product.description = body.description.trim();
 
-  saveProducts(products);
-  res.json(products[idx]);
+  await product.save();
+  res.json(formatProduct(product));
 });
 
-router.delete("/products/:id", requireAdmin, (req, res) => {
-  const products = getProducts();
-  const filtered = products.filter((p) => p.id !== req.params.id);
-  if (filtered.length === products.length) {
-    return res.status(404).json({ error: "Product not found" });
-  }
-  saveProducts(filtered);
+router.delete("/products/:id", async (req, res) => {
+  const product = await Product.findByIdAndDelete(req.params.id);
+  if (!product) return res.status(404).json({ error: "Product not found" });
   res.json({ ok: true });
 });
 
 // ——— Site settings ———
-router.get("/site", requireAdmin, (_req, res) => {
-  res.json(getSiteData());
+router.get("/site", async (_req, res) => {
+  const doc = await getSiteDoc();
+  res.json(formatSite(doc));
 });
 
-router.put("/site", requireAdmin, (req, res) => {
-  const data = getSiteData();
-  const body = req.body || {};
-  if (body.site) {
-    data.site = { ...data.site, ...body.site };
+router.put("/site", async (req, res) => {
+  const doc = await getSiteDoc();
+  if (req.body?.site) {
+    Object.assign(doc.site, req.body.site);
+    doc.markModified("site");
   }
-  saveSiteData(data);
-  res.json(data);
+  await doc.save();
+  res.json(formatSite(doc));
 });
 
 // ——— Reviews ———
-router.post("/reviews", requireAdmin, (req, res) => {
-  const data = getSiteData();
+router.post("/reviews", async (req, res) => {
+  const doc = await getSiteDoc();
   const { name, city, rating, text } = req.body || {};
   if (!name?.trim() || !text?.trim()) {
     return res.status(400).json({ error: "Name and review text are required" });
   }
   const review = {
-    id: nextId(data.reviews, "rev"),
+    id: nextItemId(doc.reviews, "rev"),
     name: name.trim(),
     city: city?.trim() || "",
     rating: Math.min(5, Math.max(1, Number(rating) || 5)),
     text: text.trim(),
   };
-  data.reviews.push(review);
-  saveSiteData(data);
+  doc.reviews.push(review);
+  await doc.save();
   res.status(201).json(review);
 });
 
-router.put("/reviews/:id", requireAdmin, (req, res) => {
-  const data = getSiteData();
-  const idx = data.reviews.findIndex((r) => r.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: "Review not found" });
+router.put("/reviews/:id", async (req, res) => {
+  const doc = await getSiteDoc();
+  const review = doc.reviews.find((r) => r.id === req.params.id);
+  if (!review) return res.status(404).json({ error: "Review not found" });
 
   const body = req.body || {};
-  data.reviews[idx] = {
-    ...data.reviews[idx],
-    name: body.name?.trim() ?? data.reviews[idx].name,
-    city: body.city?.trim() ?? data.reviews[idx].city,
-    rating: body.rating !== undefined ? Math.min(5, Math.max(1, Number(body.rating))) : data.reviews[idx].rating,
-    text: body.text?.trim() ?? data.reviews[idx].text,
-  };
-  saveSiteData(data);
-  res.json(data.reviews[idx]);
+  if (body.name !== undefined) review.name = body.name.trim();
+  if (body.city !== undefined) review.city = body.city.trim();
+  if (body.rating !== undefined) review.rating = Math.min(5, Math.max(1, Number(body.rating)));
+  if (body.text !== undefined) review.text = body.text.trim();
+
+  await doc.save();
+  res.json(review);
 });
 
-router.delete("/reviews/:id", requireAdmin, (req, res) => {
-  const data = getSiteData();
-  const before = data.reviews.length;
-  data.reviews = data.reviews.filter((r) => r.id !== req.params.id);
-  if (data.reviews.length === before) {
+router.delete("/reviews/:id", async (req, res) => {
+  const doc = await getSiteDoc();
+  const before = doc.reviews.length;
+  doc.reviews = doc.reviews.filter((r) => r.id !== req.params.id);
+  if (doc.reviews.length === before) {
     return res.status(404).json({ error: "Review not found" });
   }
-  saveSiteData(data);
+  await doc.save();
   res.json({ ok: true });
 });
 
 // ——— FAQs ———
-router.post("/faqs", requireAdmin, (req, res) => {
-  const data = getSiteData();
+router.post("/faqs", async (req, res) => {
+  const doc = await getSiteDoc();
   const { question, answer } = req.body || {};
   if (!question?.trim() || !answer?.trim()) {
     return res.status(400).json({ error: "Question and answer are required" });
   }
   const faq = {
-    id: nextId(data.faqs, "faq"),
+    id: nextItemId(doc.faqs, "faq"),
     question: question.trim(),
     answer: answer.trim(),
   };
-  data.faqs.push(faq);
-  saveSiteData(data);
+  doc.faqs.push(faq);
+  await doc.save();
   res.status(201).json(faq);
 });
 
-router.put("/faqs/:id", requireAdmin, (req, res) => {
-  const data = getSiteData();
-  const idx = data.faqs.findIndex((f) => f.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: "FAQ not found" });
+router.put("/faqs/:id", async (req, res) => {
+  const doc = await getSiteDoc();
+  const faq = doc.faqs.find((f) => f.id === req.params.id);
+  if (!faq) return res.status(404).json({ error: "FAQ not found" });
 
   const body = req.body || {};
-  data.faqs[idx] = {
-    ...data.faqs[idx],
-    question: body.question?.trim() ?? data.faqs[idx].question,
-    answer: body.answer?.trim() ?? data.faqs[idx].answer,
-  };
-  saveSiteData(data);
-  res.json(data.faqs[idx]);
+  if (body.question !== undefined) faq.question = body.question.trim();
+  if (body.answer !== undefined) faq.answer = body.answer.trim();
+
+  await doc.save();
+  res.json(faq);
 });
 
-router.delete("/faqs/:id", requireAdmin, (req, res) => {
-  const data = getSiteData();
-  const before = data.faqs.length;
-  data.faqs = data.faqs.filter((f) => f.id !== req.params.id);
-  if (data.faqs.length === before) {
+router.delete("/faqs/:id", async (req, res) => {
+  const doc = await getSiteDoc();
+  const before = doc.faqs.length;
+  doc.faqs = doc.faqs.filter((f) => f.id !== req.params.id);
+  if (doc.faqs.length === before) {
     return res.status(404).json({ error: "FAQ not found" });
   }
-  saveSiteData(data);
+  await doc.save();
   res.json({ ok: true });
 });
 
 // ——— Orders ———
-router.get("/orders", requireAdmin, (_req, res) => {
-  res.json(getOrders());
+router.get("/orders", async (_req, res) => {
+  const orders = await Order.find().sort({ createdAt: -1 });
+  res.json(orders.map(formatOrder));
 });
 
-router.patch("/orders/:id", requireAdmin, (req, res) => {
-  const orders = getOrders();
-  const idx = orders.findIndex((o) => o.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: "Order not found" });
+router.patch("/orders/:id", async (req, res) => {
+  const order = await Order.findOne({ orderId: req.params.id });
+  if (!order) return res.status(404).json({ error: "Order not found" });
 
   const { status } = req.body || {};
-  if (status) orders[idx].status = status;
-  saveOrders(orders);
-  res.json(orders[idx]);
+  if (!status) return res.status(400).json({ error: "Status is required" });
+
+  const prev = order.status;
+  order.status = status;
+  await order.save();
+
+  if (prev !== status) {
+    sendOrderStatusEmail(order, status).catch((err) =>
+      console.error("Status email failed:", err.message),
+    );
+  }
+
+  res.json(formatOrder(order));
 });
 
 export default router;

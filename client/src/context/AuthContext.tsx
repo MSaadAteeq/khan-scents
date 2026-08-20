@@ -1,49 +1,71 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { adminLogin, adminMe, getAdminToken, setAdminToken } from '../lib/api';
+import { fetchMe, getAuthToken, login as apiLogin, register as apiRegister, setAuthToken } from '../lib/api';
+import type { AuthUser } from '../lib/api';
 
 interface AuthContextValue {
-  username: string | null;
+  user: AuthUser | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  isAdmin: boolean;
+  login: (email: string, password: string) => Promise<AuthUser>;
+  register: (name: string, email: string, password: string, phone?: string) => Promise<AuthUser>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue>({
-  username: null,
+  user: null,
   loading: true,
-  login: async () => {},
+  isAdmin: false,
+  login: async () => ({ id: '', name: '', email: '', role: 'user', phone: '' }),
+  register: async () => ({ id: '', name: '', email: '', role: 'user', phone: '' }),
   logout: () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [username, setUsername] = useState<string | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = getAdminToken();
+    const token = getAuthToken();
     if (!token) {
       setLoading(false);
       return;
     }
-    adminMe()
-      .then((data) => setUsername(data.username))
-      .catch(() => setAdminToken(null))
+    fetchMe()
+      .then((data) => setUser(data.user))
+      .catch(() => setAuthToken(null))
       .finally(() => setLoading(false));
   }, []);
 
-  const login = async (user: string, password: string) => {
-    const data = await adminLogin(user, password);
-    setAdminToken(data.token);
-    setUsername(data.username);
+  const login = async (email: string, password: string) => {
+    const data = await apiLogin(email, password);
+    setAuthToken(data.token);
+    setUser(data.user);
+    return data.user;
+  };
+
+  const register = async (name: string, email: string, password: string, phone?: string) => {
+    const data = await apiRegister(name, email, password, phone);
+    setAuthToken(data.token);
+    setUser(data.user);
+    return data.user;
   };
 
   const logout = () => {
-    setAdminToken(null);
-    setUsername(null);
+    setAuthToken(null);
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ username, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAdmin: user?.role === 'admin',
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

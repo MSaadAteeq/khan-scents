@@ -85,6 +85,7 @@ export interface SiteData {
 
 export interface Order {
   id: string;
+  userId?: string | null;
   customer: CustomerDetails;
   items: OrderPayload["items"];
   deliveryFee: number;

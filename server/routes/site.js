@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { getSiteData } from "../lib/seed.js";
+import { getSiteDoc, formatSite } from "../models/Site.js";
 
 const router = Router();
 
-router.get("/", (_req, res) => {
-  const data = getSiteData();
-  res.json(data);
+router.get("/", async (_req, res) => {
+  const doc = await getSiteDoc();
+  res.json(formatSite(doc));
 });
 
 export default router;
