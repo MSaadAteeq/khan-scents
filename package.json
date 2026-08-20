@@ -1,0 +1,16 @@
+{
+  "name": "khan-scents",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:client": "npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server",
+    "images": "powershell -ExecutionPolicy Bypass -File scripts/download-images.ps1 && powershell -ExecutionPolicy Bypass -File scripts/fix-missing-images.ps1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
