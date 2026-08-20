@@ -107,6 +107,22 @@ button {
   margin-bottom: 2.5rem;
 }
 
+.page-header {
+  margin-bottom: 0;
+}
+
+.page-header .section-label {
+  margin-bottom: 0.75rem;
+}
+
+.page-header .section-title {
+  margin-bottom: 0;
+}
+
+.page-content {
+  margin-top: 1.75rem;
+}
+
 .btn-primary {
   display: inline-flex;
   align-items: center;

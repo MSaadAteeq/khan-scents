@@ -2,9 +2,11 @@ export function AboutPage() {
   return (
     <div className="pt-24 pb-20 bg-bg min-h-screen">
       <div className="container-page max-w-2xl">
-        <span className="section-label">Who we are</span>
-        <h1 className="section-title">Our story</h1>
-        <div className="space-y-5 text-text-muted leading-relaxed -mt-12">
+        <header className="page-header">
+          <span className="section-label">Who we are</span>
+          <h1 className="section-title">Our story</h1>
+        </header>
+        <div className="page-content space-y-5 text-text-muted leading-relaxed">
           <p>
             Khan Scents was created with a simple idea — premium fragrances shouldn't have to come
             with a premium price tag.

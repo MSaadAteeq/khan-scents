@@ -13,9 +13,11 @@ export function ContactPage() {
   return (
     <div className="pt-24 pb-20 bg-bg min-h-screen">
       <div className="container-page max-w-2xl">
-        <span className="section-label">Reach us</span>
-        <h1 className="section-title">Contact</h1>
-        <p className="text-text-muted mb-10 -mt-12 leading-relaxed">
+        <header className="page-header">
+          <span className="section-label">Reach us</span>
+          <h1 className="section-title">Contact</h1>
+        </header>
+        <p className="page-content text-text-muted mb-10 leading-relaxed">
           Questions about an order or delivery? We typically reply within a few hours.
         </p>
         <ul className="card divide-y divide-border">

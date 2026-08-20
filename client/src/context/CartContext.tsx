@@ -34,7 +34,11 @@ const CartContext = createContext<CartContextValue | null>(null);
 function loadCart(): CartItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as CartItem[]) : [];
+    const items = raw ? (JSON.parse(raw) as CartItem[]) : [];
+    return items.map((item) => ({
+      ...item,
+      image: normalizeImage(item.slug, item.image),
+    }));
   } catch {
     return [];
   }

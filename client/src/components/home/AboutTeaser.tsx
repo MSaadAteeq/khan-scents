@@ -11,9 +11,9 @@ export function AboutTeaser() {
       />
       <div className="absolute inset-0 bg-dark/75" />
       <div className="relative container-page max-w-lg">
-        <span className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 block">Our story</span>
-        <h2 className="text-3xl md:text-4xl font-semibold text-white mb-5">About Khan Scents</h2>
-        <p className="text-white/75 leading-relaxed mb-8 text-sm md:text-base">
+        <span className="text-white/70 text-xs font-sans font-medium uppercase tracking-wider mb-4 block">Our story</span>
+        <h2 className="font-heading text-3xl md:text-4xl font-semibold text-white mb-8">About Khan Scents</h2>
+        <p className="font-sans text-white/85 leading-relaxed mb-10 text-sm md:text-base">
           Khan Scents was created with a simple idea — premium fragrances shouldn't have to come
           with a premium price tag. We bring carefully crafted, luxury-inspired fragrances to
           customers across Pakistan.

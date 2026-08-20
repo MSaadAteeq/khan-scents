@@ -6,7 +6,7 @@ export function Reviews() {
       <div className="container-page">
         <span className="section-label">Reviews</span>
         <h2 className="section-title">What customers say</h2>
-        <p className="text-text-muted max-w-lg -mt-16 mb-10 text-sm leading-relaxed">
+        <p className="text-text-muted max-w-lg mb-10 text-sm leading-relaxed">
           Early feedback from customers across Pakistan. Send us your photo review after your first order.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
