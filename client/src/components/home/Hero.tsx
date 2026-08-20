@@ -1,20 +1,33 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { site } from '../../data/site';
+import { assetUrl } from '../../lib/assets';
 
 export function Hero() {
+  const [videoFailed, setVideoFailed] = useState(false);
+  const poster = assetUrl(site.heroPoster);
+
   return (
     <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-dark text-white">
-      <video
-        className="absolute inset-0 h-full w-full object-cover"
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster={site.heroPoster}
-      >
-        <source src={site.heroVideo} type="video/mp4" />
-      </video>
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url('${poster}')` }}
+        aria-hidden
+      />
+      {!videoFailed && (
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster={poster}
+          onError={() => setVideoFailed(true)}
+        >
+          <source src={site.heroVideo} type="video/mp4" />
+        </video>
+      )}
       <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/30" />
 
       <div className="relative container-page w-full pt-20">

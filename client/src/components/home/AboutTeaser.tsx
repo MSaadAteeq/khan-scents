@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { aboutBackground } from '../../data/images';
+import { assetUrl } from '../../lib/assets';
 
 export function AboutTeaser() {
   return (
     <section className="relative py-24 md:py-32 overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${aboutBackground}')` }}
+        style={{ backgroundImage: `url('${assetUrl(aboutBackground)}')` }}
       />
       <div className="absolute inset-0 bg-dark/75" />
       <div className="relative container-page max-w-lg">

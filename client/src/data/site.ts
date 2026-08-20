@@ -10,7 +10,7 @@ export const site = {
   deliveryFee: 300,
   address: "Pakistan — Nationwide Delivery",
   heroVideo: "https://assets.mixkit.co/videos/46051/46051-720.mp4",
-  heroPoster: "https://assets.mixkit.co/videos/46051/46051-thumb-720-2.jpg",
+  heroPoster: "/images/hero-poster.jpg",
 };
 
 export const faqs = [

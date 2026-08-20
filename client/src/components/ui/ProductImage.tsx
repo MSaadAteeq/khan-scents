@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { imageFallback } from '../../data/images';
+import { assetUrl } from '../../lib/assets';
 
 type ProductImageProps = {
   src: string;
@@ -9,7 +10,13 @@ type ProductImageProps = {
 };
 
 export function ProductImage({ src, alt, className, loading = 'lazy' }: ProductImageProps) {
-  const [current, setCurrent] = useState(src);
+  const resolved = assetUrl(src);
+  const fallback = assetUrl(imageFallback);
+  const [current, setCurrent] = useState(resolved);
+
+  useEffect(() => {
+    setCurrent(assetUrl(src));
+  }, [src]);
 
   return (
     <img
@@ -19,7 +26,7 @@ export function ProductImage({ src, alt, className, loading = 'lazy' }: ProductI
       loading={loading}
       decoding="async"
       onError={() => {
-        if (current !== imageFallback) setCurrent(imageFallback);
+        if (current !== fallback) setCurrent(fallback);
       }}
     />
   );

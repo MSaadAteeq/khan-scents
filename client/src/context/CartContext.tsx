@@ -7,9 +7,17 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { imageFallback, productImages } from '../data/images';
 import type { CartItem, Product } from '../types/product';
 
 const STORAGE_KEY = 'khan-scents-cart';
+
+function normalizeImage(slug: string, image: string): string {
+  const local = productImages[slug]?.[0];
+  if (local) return local;
+  if (image?.startsWith('/images/')) return image;
+  return imageFallback;
+}
 
 interface CartContextValue {
   items: CartItem[];
