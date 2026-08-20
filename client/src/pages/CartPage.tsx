@@ -11,94 +11,61 @@ export function CartPage() {
 
   if (!items.length) {
     return (
-      <div className="pt-32 pb-20 container-page text-center">
-        <h1 className="font-display text-5xl text-ivory mb-4">Your Cart</h1>
-        <p className="text-ivory-dim mb-8">No fragrances yet — find your signature scent.</p>
-        <Link to="/shop" className="btn-gold">
-          Shop Now
-        </Link>
+      <div className="pt-32 pb-20 container-page text-center bg-bg min-h-screen">
+        <h1 className="text-3xl font-semibold text-text mb-3">Your cart</h1>
+        <p className="text-text-muted mb-8">No fragrances yet.</p>
+        <Link to="/shop" className="btn-primary">Shop now</Link>
       </div>
     );
   }
 
   return (
-    <div className="pt-28 pb-20">
+    <div className="pt-24 pb-20 bg-bg min-h-screen">
       <div className="container-page">
-        <h1 className="font-display text-5xl text-ivory mb-10">Your Cart</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2 space-y-6">
+        <h1 className="section-title">Your cart</h1>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
-              <div
-                key={item.slug}
-                className="flex gap-4 border-b border-[var(--color-line)] pb-6"
-              >
-                <Link to={`/product/${item.slug}`} className="w-24 h-32 shrink-0 overflow-hidden bg-charcoal-lift">
+              <div key={item.slug} className="card p-4 flex gap-4">
+                <Link to={`/product/${item.slug}`} className="w-20 h-24 shrink-0 overflow-hidden rounded-md bg-surface-muted">
                   <ProductImage src={item.image} alt={item.name} className="h-full w-full object-cover" />
                 </Link>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between gap-4">
                     <div>
-                      <Link
-                        to={`/product/${item.slug}`}
-                        className="font-display text-2xl text-ivory hover:text-gold"
-                      >
+                      <Link to={`/product/${item.slug}`} className="font-semibold text-text hover:text-accent">
                         {item.name}
                       </Link>
-                      <p className="text-xs text-ivory-dim mt-1">{item.size}</p>
+                      <p className="text-xs text-text-muted mt-1">{item.size}</p>
                     </div>
-                    <p className="text-gold">{formatPrice(item.price * item.quantity)}</p>
+                    <p className="font-semibold text-text">{formatPrice(item.price * item.quantity)}</p>
                   </div>
-                  <div className="mt-4 flex items-center gap-4">
-                    <div className="flex items-center border border-[var(--color-line)]">
-                      <button
-                        type="button"
-                        className="px-3 py-1.5 text-ivory-dim hover:text-gold"
-                        onClick={() => updateQuantity(item.slug, item.quantity - 1)}
-                      >
-                        −
-                      </button>
+                  <div className="mt-3 flex items-center gap-4">
+                    <div className="flex items-center border border-border rounded-md overflow-hidden">
+                      <button type="button" className="px-3 py-1 text-text-muted hover:text-text" onClick={() => updateQuantity(item.slug, item.quantity - 1)}>−</button>
                       <span className="px-3 text-sm">{item.quantity}</span>
-                      <button
-                        type="button"
-                        className="px-3 py-1.5 text-ivory-dim hover:text-gold"
-                        onClick={() => updateQuantity(item.slug, item.quantity + 1)}
-                      >
-                        +
-                      </button>
+                      <button type="button" className="px-3 py-1 text-text-muted hover:text-text" onClick={() => updateQuantity(item.slug, item.quantity + 1)}>+</button>
                     </div>
-                    <button
-                      type="button"
-                      className="text-xs uppercase tracking-widest text-ivory-dim hover:text-gold"
-                      onClick={() => removeItem(item.slug)}
-                    >
-                      Remove
-                    </button>
+                    <button type="button" className="text-sm text-text-muted hover:text-text" onClick={() => removeItem(item.slug)}>Remove</button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <aside className="border border-[var(--color-line)] bg-charcoal-soft p-6 h-fit space-y-4">
-            <h2 className="font-display text-2xl text-ivory">Summary</h2>
-            <div className="flex justify-between text-sm text-ivory-dim">
-              <span>Subtotal</span>
-              <span>{formatPrice(subtotal)}</span>
+          <aside className="card p-6 h-fit space-y-4">
+            <h2 className="font-semibold text-text">Summary</h2>
+            <div className="flex justify-between text-sm text-text-muted">
+              <span>Subtotal</span><span>{formatPrice(subtotal)}</span>
             </div>
-            <div className="flex justify-between text-sm text-ivory-dim">
-              <span>Delivery</span>
-              <span>{formatPrice(delivery)}</span>
+            <div className="flex justify-between text-sm text-text-muted">
+              <span>Delivery</span><span>{formatPrice(delivery)}</span>
             </div>
-            <div className="flex justify-between text-lg border-t border-[var(--color-line)] pt-4">
-              <span>Total</span>
-              <span className="text-gold">{formatPrice(total)}</span>
+            <div className="flex justify-between font-semibold text-text border-t border-border pt-4">
+              <span>Total</span><span>{formatPrice(total)}</span>
             </div>
-            <Link to="/checkout" className="btn-gold w-full">
-              Checkout
-            </Link>
-            <Link to="/shop" className="btn-outline w-full">
-              Continue Shopping
-            </Link>
+            <Link to="/checkout" className="btn-primary w-full">Checkout</Link>
+            <Link to="/shop" className="btn-outline w-full">Continue shopping</Link>
           </aside>
         </div>
       </div>

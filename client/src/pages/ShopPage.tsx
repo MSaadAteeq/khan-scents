@@ -56,39 +56,33 @@ export function ShopPage() {
   };
 
   return (
-    <div className="pt-28 pb-20">
+    <div className="pt-24 pb-20 bg-bg min-h-screen">
       <div className="container-page">
-        <p className="text-xs uppercase tracking-widest-plus text-gold mb-3">Catalog</p>
-        <h1 className="font-display text-5xl md:text-6xl text-ivory mb-10">Shop</h1>
+        <span className="section-label">Catalog</span>
+        <h1 className="section-title">Shop all fragrances</h1>
 
         <div className="flex flex-col lg:flex-row gap-10">
-          <aside className="lg:w-56 shrink-0 space-y-8">
+          <aside className="lg:w-64 shrink-0 space-y-6">
             <div>
-              <label className="block text-xs uppercase tracking-widest text-ivory-dim mb-2">
-                Search
-              </label>
+              <label className="block text-sm font-medium text-text mb-2">Search</label>
               <input
                 type="search"
                 placeholder="Name or notes..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full px-3 py-2.5 text-sm"
+                className="w-full px-4 py-2.5"
               />
             </div>
 
             <div>
-              <p className="text-xs uppercase tracking-widest text-ivory-dim mb-3">Gender</p>
+              <p className="text-sm font-medium text-text mb-3">Gender</p>
               <div className="flex flex-wrap gap-2">
                 {genderFilters.map((f) => (
                   <button
                     key={f.value}
                     type="button"
                     onClick={() => setGender(f.value)}
-                    className={`px-3 py-1.5 text-xs uppercase tracking-wider border transition ${
-                      gender === f.value
-                        ? 'border-gold text-gold'
-                        : 'border-[var(--color-line)] text-ivory-dim hover:border-gold/50'
-                    }`}
+                    className={`filter-pill ${gender === f.value ? 'filter-pill-active' : ''}`}
                   >
                     {f.label}
                   </button>
@@ -97,18 +91,14 @@ export function ShopPage() {
             </div>
 
             <div>
-              <p className="text-xs uppercase tracking-widest text-ivory-dim mb-3">Notes</p>
+              <p className="text-sm font-medium text-text mb-3">Notes</p>
               <div className="flex flex-wrap gap-2">
                 {noteFilters.map((f) => (
                   <button
                     key={f.value}
                     type="button"
                     onClick={() => setNote(note === f.value ? null : f.value)}
-                    className={`px-3 py-1.5 text-xs uppercase tracking-wider border transition ${
-                      note === f.value
-                        ? 'border-gold text-gold'
-                        : 'border-[var(--color-line)] text-ivory-dim hover:border-gold/50'
-                    }`}
+                    className={`filter-pill ${note === f.value ? 'filter-pill-active' : ''}`}
                   >
                     {f.label}
                   </button>
@@ -116,32 +106,32 @@ export function ShopPage() {
               </div>
             </div>
 
-            <label className="flex items-center gap-3 text-sm text-ivory-dim cursor-pointer">
+            <label className="flex items-center gap-3 text-sm text-text-muted cursor-pointer">
               <input
                 type="checkbox"
                 checked={under2500}
                 onChange={(e) => setUnder2500(e.target.checked)}
-                className="accent-[var(--color-gold)]"
+                className="accent-text"
               />
               Under Rs. 2,500
             </label>
           </aside>
 
           <div className="flex-1">
-            {loading && <p className="text-ivory-dim">Loading catalog...</p>}
-            {error && <p className="text-red-300">{error}</p>}
+            {loading && <p className="text-text-muted text-sm">Loading catalog...</p>}
+            {error && <p className="text-red-600 text-sm">{error}</p>}
             {!loading && !error && (
               <>
-                <p className="text-sm text-ivory-dim mb-6">
+                <p className="text-sm text-text-muted mb-6">
                   {filtered.length} fragrance{filtered.length === 1 ? '' : 's'}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                   {filtered.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
                 {!filtered.length && (
-                  <p className="text-ivory-dim mt-8">No fragrances match these filters.</p>
+                  <p className="text-text-muted mt-8">No fragrances match these filters.</p>
                 )}
               </>
             )}

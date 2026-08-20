@@ -29,12 +29,10 @@ export function CheckoutPage() {
 
   if (!items.length) {
     return (
-      <div className="pt-32 pb-20 container-page text-center">
-        <h1 className="font-display text-5xl text-ivory mb-4">Checkout</h1>
-        <p className="text-ivory-dim mb-8">Your cart is empty.</p>
-        <Link to="/shop" className="btn-gold">
-          Shop Fragrances
-        </Link>
+      <div className="pt-32 pb-20 container-page text-center bg-bg min-h-screen">
+        <h1 className="text-3xl font-semibold text-text mb-3">Checkout</h1>
+        <p className="text-text-muted mb-8">Your cart is empty.</p>
+        <Link to="/shop" className="btn-primary">Shop fragrances</Link>
       </div>
     );
   }
@@ -73,8 +71,8 @@ export function CheckoutPage() {
     label: string,
     opts?: { required?: boolean; type?: string; rows?: number },
   ) => (
-    <label className="block space-y-2">
-      <span className="text-xs uppercase tracking-widest text-ivory-dim">{label}</span>
+    <label className="block space-y-1.5">
+      <span className="text-sm font-medium text-text">{label}</span>
       {opts?.rows ? (
         <textarea
           required={opts.required !== false}
@@ -96,10 +94,10 @@ export function CheckoutPage() {
   );
 
   return (
-    <div className="pt-28 pb-20">
+    <div className="pt-24 pb-20 bg-bg min-h-screen">
       <div className="container-page">
-        <h1 className="font-display text-5xl text-ivory mb-10">Checkout</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+        <h1 className="section-title">Checkout</h1>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
           <form onSubmit={onSubmit} className="lg:col-span-3 space-y-5">
             {field('fullName', 'Full Name')}
             {field('phone', 'Phone Number', { type: 'tel' })}
@@ -110,49 +108,45 @@ export function CheckoutPage() {
               {field('postalCode', 'Postal Code', { required: false })}
             </div>
 
-            <fieldset className="border border-gold/40 bg-charcoal-soft p-5 space-y-2">
-              <legend className="px-2 text-xs uppercase tracking-widest text-gold">
-                Payment
-              </legend>
-              <label className="flex items-center gap-3 text-ivory">
-                <input type="radio" checked readOnly className="accent-[var(--color-gold)]" />
+            <fieldset className="card p-5 space-y-2">
+              <legend className="text-sm font-medium text-text px-1">Payment</legend>
+              <label className="flex items-center gap-3 text-text">
+                <input type="radio" checked readOnly className="accent-text" />
                 <span>
-                  <strong className="text-gold">Cash on Delivery</strong>
-                  <span className="block text-sm text-ivory-dim">
-                    Pay when your fragrance arrives. Online payments coming soon.
+                  <strong className="text-text">Cash on delivery</strong>
+                  <span className="block text-sm text-text-muted">
+                    Pay when your fragrance arrives.
                   </span>
                 </span>
               </label>
             </fieldset>
 
-            {error && <p className="text-red-300 text-sm">{error}</p>}
+            {error && <p className="text-red-600 text-sm">{error}</p>}
 
-            <button type="submit" className="btn-gold w-full" disabled={submitting}>
-              {submitting ? 'Placing Order...' : 'Place Order & Open WhatsApp'}
+            <button type="submit" className="btn-primary w-full" disabled={submitting}>
+              {submitting ? 'Placing order...' : 'Place order & open WhatsApp'}
             </button>
-            <p className="text-xs text-ivory-dim text-center">
-              Your order is saved with us and a WhatsApp message opens so we can confirm it.
+            <p className="text-xs text-text-muted text-center">
+              Your order is saved and a WhatsApp message opens for confirmation.
             </p>
           </form>
 
           <aside className="lg:col-span-2 space-y-6">
-            <div className="border border-[var(--color-line)] bg-charcoal-soft p-6 space-y-4">
-              <h2 className="font-display text-2xl text-ivory">Order Summary</h2>
+            <div className="card p-6 space-y-4">
+              <h2 className="font-semibold text-text">Order summary</h2>
               {items.map((item) => (
-                <div key={item.slug} className="flex justify-between text-sm text-ivory-dim gap-4">
-                  <span>
-                    {item.name} × {item.quantity}
-                  </span>
+                <div key={item.slug} className="flex justify-between text-sm text-text-muted gap-4">
+                  <span>{item.name} × {item.quantity}</span>
                   <span>{formatPrice(item.price * item.quantity)}</span>
                 </div>
               ))}
-              <div className="flex justify-between text-sm text-ivory-dim border-t border-[var(--color-line)] pt-4">
+              <div className="flex justify-between text-sm text-text-muted border-t border-border pt-4">
                 <span>Delivery</span>
                 <span>{formatPrice(delivery)}</span>
               </div>
-              <div className="flex justify-between text-lg">
+              <div className="flex justify-between font-semibold text-text">
                 <span>Total</span>
-                <span className="text-gold">{formatPrice(total)}</span>
+                <span>{formatPrice(total)}</span>
               </div>
             </div>
             <TrustStrip compact />

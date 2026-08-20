@@ -4,18 +4,18 @@ import { ProductImage } from '../ui/ProductImage';
 
 export function Instagram() {
   return (
-    <section className="py-20 md:py-28">
+    <section className="py-20 md:py-28 bg-surface">
       <div className="container-page">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
+        <div className="flex items-end justify-between gap-4 mb-10">
           <div>
-            <p className="text-xs uppercase tracking-widest-plus text-gold mb-3">Follow along</p>
-            <h2 className="font-display text-4xl md:text-5xl text-ivory">Instagram</h2>
+            <span className="section-label">Social</span>
+            <h2 className="section-title !mb-0">Follow us</h2>
           </div>
           <a
             href={site.instagram}
             target="_blank"
             rel="noreferrer"
-            className="text-xs uppercase tracking-widest text-ivory-dim hover:text-gold"
+            className="text-sm font-medium text-accent hover:text-text transition-colors"
           >
             @khanscents →
           </a>
@@ -27,12 +27,12 @@ export function Instagram() {
               href={site.instagram}
               target="_blank"
               rel="noreferrer"
-              className="aspect-square overflow-hidden group"
+              className="aspect-square overflow-hidden rounded-lg group"
             >
               <ProductImage
                 src={src}
-                alt={`Khan Scents Instagram placeholder ${i + 1}`}
-                className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                alt={`Instagram ${i + 1}`}
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
               />
             </a>
           ))}

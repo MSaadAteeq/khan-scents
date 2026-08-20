@@ -8,17 +8,17 @@ export function AboutTeaser() {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url('${aboutBackground}')` }}
       />
-      <div className="absolute inset-0 bg-charcoal/80" />
-      <div className="relative container-page max-w-3xl">
-        <p className="text-xs uppercase tracking-widest-plus text-gold mb-3">Our story</p>
-        <h2 className="font-display text-4xl md:text-5xl text-ivory mb-6">About Khan Scents</h2>
-        <p className="text-ivory-dim text-lg leading-relaxed mb-8">
+      <div className="absolute inset-0 bg-dark/75" />
+      <div className="relative container-page max-w-lg">
+        <span className="text-white/60 text-xs font-medium uppercase tracking-wider mb-3 block">Our story</span>
+        <h2 className="text-3xl md:text-4xl font-semibold text-white mb-5">About Khan Scents</h2>
+        <p className="text-white/75 leading-relaxed mb-8 text-sm md:text-base">
           Khan Scents was created with a simple idea — premium fragrances shouldn't have to come
           with a premium price tag. We bring carefully crafted, luxury-inspired fragrances to
           customers across Pakistan.
         </p>
-        <Link to="/about" className="btn-outline">
-          Read Our Story
+        <Link to="/about" className="btn-primary !bg-white !text-text hover:!bg-white/90">
+          Read our story
         </Link>
       </div>
     </section>

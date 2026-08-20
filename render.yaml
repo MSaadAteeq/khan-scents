@@ -1,0 +1,33 @@
+# Render Blueprint — deploy backend + frontend from one repo
+# Dashboard: New → Blueprint → connect GitHub repo
+# After deploy, set CLIENT_URL and VITE_API_URL in the Render dashboard.
+
+services:
+  - type: web
+    name: khan-scents-api
+    runtime: node
+    plan: free
+    rootDir: server
+    branch: master
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        sync: false
+
+staticSites:
+  - name: khan-scents
+    rootDir: client
+    branch: master
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        sync: false

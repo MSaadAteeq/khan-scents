@@ -7,21 +7,21 @@ export function BestSellers() {
   const bestsellers = products.filter((p) => p.bestSeller).slice(0, 4);
 
   return (
-    <section className="py-24 md:py-32">
+    <section className="py-20 md:py-28 bg-bg">
       <div className="container-page">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-14">
+        <div className="flex items-end justify-between gap-4 mb-10">
           <div>
-            <p className="section-label">Featured</p>
-            <h2 className="font-display text-4xl md:text-5xl text-ivory italic">Best sellers</h2>
+            <span className="section-label">Featured</span>
+            <h2 className="section-title !mb-0">Best sellers</h2>
           </div>
-          <Link to="/shop" className="text-sm text-ivory-dim hover:text-ivory transition-colors">
+          <Link to="/shop" className="text-sm font-medium text-accent hover:text-text transition-colors shrink-0">
             View all →
           </Link>
         </div>
         {loading ? (
-          <p className="text-ivory-dim text-sm">Loading...</p>
+          <p className="text-text-muted text-sm">Loading...</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {bestsellers.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

@@ -5,13 +5,14 @@ import { Navbar } from './Navbar';
 
 export function Layout() {
   const { pathname } = useLocation();
+  const isHome = pathname === '/';
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-charcoal text-ivory">
+    <div className={`min-h-screen flex flex-col ${isHome ? '' : 'bg-bg text-text'}`}>
       <Navbar />
       <main className="flex-1">
         <Outlet />

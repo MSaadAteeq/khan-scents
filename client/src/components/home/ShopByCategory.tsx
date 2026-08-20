@@ -10,25 +10,25 @@ const categories = [
 
 export function ShopByCategory() {
   return (
-    <section className="py-24 md:py-32 border-t border-[var(--color-line)]">
+    <section className="py-20 md:py-28 bg-bg">
       <div className="container-page">
-        <p className="section-label">Categories</p>
-        <h2 className="font-display text-4xl md:text-5xl text-ivory mb-14 italic">Shop by mood</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <span className="section-label">Browse</span>
+        <h2 className="section-title">Shop by category</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {categories.map((cat) => (
             <Link
               key={cat.label}
               to={cat.to}
-              className="relative group aspect-[4/5] overflow-hidden rounded-sm"
+              className="relative group aspect-[3/4] overflow-hidden rounded-xl"
             >
               <ProductImage
                 src={cat.image}
                 alt={cat.label}
-                className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
+                className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-charcoal/40 group-hover:bg-charcoal/30 transition" />
-              <div className="absolute inset-0 flex items-end p-7">
-                <span className="font-display text-2xl md:text-3xl text-ivory italic">{cat.label}</span>
+              <div className="absolute inset-0 bg-dark/30 group-hover:bg-dark/20 transition" />
+              <div className="absolute inset-0 flex items-end p-6">
+                <span className="text-xl font-semibold text-white">{cat.label}</span>
               </div>
             </Link>
           ))}
