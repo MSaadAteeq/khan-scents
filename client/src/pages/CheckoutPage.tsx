@@ -6,7 +6,6 @@ import { useCart } from '../context/CartContext';
 import { useSite } from '../context/SiteContext';
 import { submitOrder } from '../lib/api';
 import { formatPrice } from '../lib/format';
-import { buildWhatsAppOrderUrl } from '../lib/whatsapp';
 import type { CustomerDetails } from '../types/product';
 
 const empty: CustomerDetails = {
@@ -69,9 +68,7 @@ export function CheckoutPage() {
         paymentMethod: 'Cash on Delivery',
       });
 
-      const waUrl = buildWhatsAppOrderUrl(order.id, form, items, delivery, total, site.whatsapp);
       clearCart();
-      window.open(waUrl, '_blank');
       navigate('/checkout/success', { state: { orderId: order.id } });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -115,7 +112,7 @@ export function CheckoutPage() {
           <form onSubmit={onSubmit} className="lg:col-span-3 space-y-5">
             {field('fullName', 'Full Name')}
             {field('phone', 'Phone Number', { type: 'tel' })}
-            {field('email', 'Email', { type: 'email', required: false })}
+            {field('email', 'Email', { type: 'email' })}
             {field('address', 'Complete Address', { rows: 3 })}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {field('city', 'City')}
@@ -138,10 +135,10 @@ export function CheckoutPage() {
             {error && <p className="text-red-600 text-sm">{error}</p>}
 
             <button type="submit" className="btn-primary w-full" disabled={submitting}>
-              {submitting ? 'Placing order...' : 'Place order & open WhatsApp'}
+              {submitting ? 'Placing order...' : 'Place order'}
             </button>
             <p className="text-xs text-text-muted text-center">
-              Your order is saved and a WhatsApp message opens for confirmation.
+              You will receive an email confirmation and updates about your order.
             </p>
           </form>
 

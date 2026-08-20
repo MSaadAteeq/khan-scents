@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useSite } from '../context/SiteContext';
-import { whatsappChatUrl } from '../lib/whatsapp';
 
 export function SuccessPage() {
   const { site } = useSite();
@@ -13,13 +12,11 @@ export function SuccessPage() {
       <h1 className="text-3xl font-semibold text-text mb-3">Order received</h1>
       {orderId && <p className="text-accent font-medium mb-4">Order {orderId}</p>}
       <p className="text-text-muted leading-relaxed mb-8 text-sm">
-        Your order has been saved. Send the WhatsApp message so we can confirm and dispatch within 1–2 working days.
+        Your order has been saved. Check your email for confirmation — we will send updates when your order is confirmed, shipped, or delivered.
       </p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <a href={whatsappChatUrl('Hi — confirming my Khan Scents order.', site.whatsapp)} target="_blank" rel="noreferrer" className="btn-primary">
-          Open WhatsApp
-        </a>
-        <Link to="/shop" className="btn-outline">Continue shopping</Link>
+        <Link to="/shop" className="btn-primary">Continue shopping</Link>
+        <Link to="/account" className="btn-outline">View my orders</Link>
       </div>
       <p className="mt-10 text-sm text-text-muted">
         Questions? <a href={`mailto:${site.email}`} className="text-accent hover:underline">{site.email}</a>
