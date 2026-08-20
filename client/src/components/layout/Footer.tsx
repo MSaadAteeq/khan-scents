@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="bg-surface border-t border-border mt-auto">
       <div className="container-page py-14 grid grid-cols-1 md:grid-cols-3 gap-10">
         <div>
-          <p className="text-lg font-semibold text-text mb-2">Khan Scents</p>
+          <p className="text-lg font-heading font-semibold text-text mb-2">Khan Scents</p>
           <p className="text-sm text-text-muted leading-relaxed max-w-xs">
             Luxury-inspired fragrances, delivered across Pakistan with cash on delivery.
           </p>

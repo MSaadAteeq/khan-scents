@@ -8,6 +8,29 @@ const links = [
   { to: '/contact', label: 'Contact' },
 ];
 
+function MenuIcon({ open, light }: { open: boolean; light: boolean }) {
+  const bar = light ? 'bg-white' : 'bg-text';
+  return (
+    <span className="relative flex h-5 w-6 flex-col justify-center" aria-hidden>
+      <span
+        className={`absolute h-0.5 w-6 rounded-full transition-all duration-300 ${bar} ${
+          open ? 'rotate-45 translate-y-0' : '-translate-y-2'
+        }`}
+      />
+      <span
+        className={`absolute h-0.5 w-6 rounded-full transition-all duration-300 ${bar} ${
+          open ? 'opacity-0 scale-x-0' : 'opacity-100'
+        }`}
+      />
+      <span
+        className={`absolute h-0.5 w-6 rounded-full transition-all duration-300 ${bar} ${
+          open ? '-rotate-45 translate-y-0' : 'translate-y-2'
+        }`}
+      />
+    </span>
+  );
+}
+
 export function Navbar() {
   const { count } = useCart();
   const { pathname } = useLocation();
@@ -43,7 +66,7 @@ export function Navbar() {
       <div className="container-page flex items-center justify-between h-16">
         <Link
           to="/"
-          className={`text-lg font-semibold tracking-tight ${light ? 'text-white' : 'text-text'}`}
+          className={`text-lg font-heading font-semibold tracking-tight ${light ? 'text-white' : 'text-text'}`}
           onClick={() => setMenuOpen(false)}
         >
           Khan Scents
@@ -85,11 +108,12 @@ export function Navbar() {
           </Link>
           <button
             type="button"
-            className={`md:hidden text-sm font-medium ${light ? 'text-white' : 'text-text'}`}
+            className="md:hidden flex items-center justify-center p-2 -mr-2"
             onClick={() => setMenuOpen((o) => !o)}
-            aria-label="Toggle menu"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
           >
-            {menuOpen ? 'Close' : 'Menu'}
+            <MenuIcon open={menuOpen} light={light} />
           </button>
         </div>
       </div>

@@ -12,6 +12,7 @@
   --color-dark: #0c0c0d;
   --color-dark-muted: #2a2a2c;
   --font-sans: "Poppins", system-ui, sans-serif;
+  --font-heading: "Playfair Display", Georgia, serif;
 }
 
 :root {
@@ -25,6 +26,7 @@
   --color-border: #e5e2dc;
   --color-dark: #0c0c0d;
   --font-sans: "Poppins", system-ui, sans-serif;
+  --font-heading: "Playfair Display", Georgia, serif;
 }
 
 * {
@@ -49,11 +51,10 @@ body {
 }
 
 h1, h2, h3, h4, h5 {
-  font-family: var(--font-sans);
+  font-family: var(--font-heading);
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   line-height: 1.15;
-  color: var(--color-text);
 }
 
 a {
@@ -89,6 +90,7 @@ button {
 
 .section-label {
   display: inline-block;
+  font-family: var(--font-sans);
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.06em;
@@ -98,6 +100,7 @@ button {
 }
 
 .section-title {
+  font-family: var(--font-heading);
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 600;
   color: var(--color-text);
@@ -237,7 +240,15 @@ textarea::placeholder {
 }
 
 .font-display {
-  font-family: var(--font-sans);
+  font-family: var(--font-heading);
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
+}
+
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
 }
