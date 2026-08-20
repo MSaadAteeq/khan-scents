@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { products as seedProducts } from "../data/products.js";
+import { products as defaultProducts } from "../data/products.js";
 import { productImages, imageFallback } from "../data/images.js";
 import { Product, formatProduct } from "../models/Product.js";
 import { Site, getSiteDoc, formatSite } from "../models/Site.js";
@@ -54,13 +54,13 @@ async function seedProducts() {
   if (count > 0) return;
 
   const jsonPath = path.join(__dirname, "../data/products.json");
-  let source = seedProducts;
+  let source = defaultProducts;
 
   if (fs.existsSync(jsonPath)) {
     try {
       source = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
     } catch {
-      source = seedProducts;
+      source = defaultProducts;
     }
   }
 
