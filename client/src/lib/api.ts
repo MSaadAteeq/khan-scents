@@ -122,6 +122,20 @@ export async function adminDeleteProduct(id: string) {
   return authFetch(`/api/admin/products/${id}`, { method: 'DELETE' });
 }
 
+export async function adminUploadProductImage(file: File): Promise<{ url: string }> {
+  const token = getAuthToken();
+  const body = new FormData();
+  body.append('file', file);
+  const res = await fetch(apiUrl('/api/admin/upload/product-image'), {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Image upload failed');
+  return data as { url: string };
+}
+
 export async function adminGetSite() {
   return authFetch('/api/admin/site') as Promise<SiteData>;
 }

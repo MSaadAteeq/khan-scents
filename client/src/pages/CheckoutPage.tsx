@@ -69,7 +69,9 @@ export function CheckoutPage() {
       });
 
       clearCart();
-      navigate('/checkout/success', { state: { orderId: order.id } });
+      navigate('/checkout/success', {
+        state: { orderId: order.id, emailSent: order.emailSent },
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
@@ -112,7 +114,10 @@ export function CheckoutPage() {
           <form onSubmit={onSubmit} className="lg:col-span-3 space-y-5">
             {field('fullName', 'Full Name')}
             {field('phone', 'Phone Number', { type: 'tel' })}
-            {field('email', 'Email', { type: 'email' })}
+            {field('email', 'Email for order confirmation', { type: 'email' })}
+            <p className="text-xs text-text-muted -mt-3">
+              Used only to send your order confirmation and delivery updates. We never sell or share your email.
+            </p>
             {field('address', 'Complete Address', { rows: 3 })}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {field('city', 'City')}

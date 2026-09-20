@@ -1,14 +1,55 @@
 import { Router } from "express";
+import multer from "multer";
 import { Product, formatProduct } from "../models/Product.js";
 import { getSiteDoc, formatSite } from "../models/Site.js";
 import { Order, formatOrder } from "../models/Order.js";
 import { slugify, nextItemId } from "../lib/seedMongo.js";
 import { requireAuth, requireAdmin } from "../middleware/auth.js";
 import { sendOrderStatusEmail } from "../lib/email.js";
+import { isCloudinaryConfigured, uploadProductImage } from "../lib/cloudinary.js";
 
 const router = Router();
 
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (!file.mimetype?.startsWith("image/")) {
+      cb(new Error("Only image files are allowed"));
+      return;
+    }
+    cb(null, true);
+  },
+});
+
+function parseProductImages(images) {
+  const list = Array.isArray(images) ? images.map(String).map((s) => s.trim()).filter(Boolean) : [];
+  if (list.length === 0) return { error: "At least one product image is required" };
+  return { images: list };
+}
+
 router.use(requireAuth, requireAdmin);
+
+router.post("/upload/product-image", (req, res, next) => {
+  imageUpload.single("file")(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message || "Invalid upload" });
+    next();
+  });
+}, async (req, res) => {
+  if (!isCloudinaryConfigured()) {
+    return res.status(503).json({ error: "Image upload is not configured (Cloudinary env vars missing)" });
+  }
+  if (!req.file?.buffer) {
+    return res.status(400).json({ error: "No image file provided" });
+  }
+  try {
+    const { url } = await uploadProductImage(req.file.buffer, req.file.mimetype);
+    res.json({ url });
+  } catch (err) {
+    console.error("Cloudinary upload failed:", err.message);
+    res.status(502).json({ error: "Image upload failed" });
+  }
+});
 
 // ——— Products ———
 router.get("/products", async (_req, res) => {
@@ -26,6 +67,9 @@ router.post("/products", async (req, res) => {
   const existing = await Product.findOne({ slug });
   if (existing) slug = `${slug}-${Date.now()}`;
 
+  const parsedImages = parseProductImages(body.images);
+  if (parsedImages.error) return res.status(400).json({ error: parsedImages.error });
+
   const product = await Product.create({
     slug,
     name: body.name.trim(),
@@ -36,7 +80,7 @@ router.post("/products", async (req, res) => {
     notes: Array.isArray(body.notes) ? body.notes : [],
     longevity: body.longevity?.trim() || "",
     howToUse: body.howToUse?.trim() || "",
-    images: Array.isArray(body.images) ? body.images.filter(Boolean) : ["/images/products/fallback.jpg"],
+    images: parsedImages.images,
     bestSeller: Boolean(body.bestSeller),
     description: body.description?.trim() || "",
   });
@@ -63,7 +107,11 @@ router.put("/products/:id", async (req, res) => {
   if (body.notes !== undefined) product.notes = body.notes;
   if (body.longevity !== undefined) product.longevity = body.longevity.trim();
   if (body.howToUse !== undefined) product.howToUse = body.howToUse.trim();
-  if (body.images !== undefined) product.images = body.images.filter(Boolean);
+  if (body.images !== undefined) {
+    const parsedImages = parseProductImages(body.images);
+    if (parsedImages.error) return res.status(400).json({ error: parsedImages.error });
+    product.images = parsedImages.images;
+  }
   if (body.bestSeller !== undefined) product.bestSeller = Boolean(body.bestSeller);
   if (body.description !== undefined) product.description = body.description.trim();
 
@@ -197,9 +245,7 @@ router.patch("/orders/:id", async (req, res) => {
   await order.save();
 
   if (prev !== status) {
-    sendOrderStatusEmail(order, status).catch((err) =>
-      console.error("Status email failed:", err.message),
-    );
+    await sendOrderStatusEmail(order, status);
   }
 
   res.json(formatOrder(order));

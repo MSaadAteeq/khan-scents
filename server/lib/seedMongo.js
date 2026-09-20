@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { products as defaultProducts } from "../data/products.js";
-import { productImages, imageFallback } from "../data/images.js";
 import { Product, formatProduct } from "../models/Product.js";
 import { Site, getSiteDoc, formatSite } from "../models/Site.js";
 import { Order } from "../models/Order.js";
@@ -65,7 +64,8 @@ async function seedProducts() {
   }
 
   for (const p of source) {
-    const images = productImages[p.slug] ?? p.images ?? [imageFallback];
+    const images = Array.isArray(p.images) && p.images.length ? p.images : [];
+    if (images.length === 0) continue;
     await Product.create({
       slug: p.slug,
       name: p.name,

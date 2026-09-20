@@ -1,6 +1,6 @@
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { adminCreateProduct, adminGetProducts, adminUpdateProduct } from '../../lib/api';
+import { adminCreateProduct, adminGetProducts, adminUpdateProduct, adminUploadProductImage } from '../../lib/api';
 import type { Gender, Note, Product } from '../../types/product';
 
 const GENDERS: Gender[] = ['him', 'her', 'unisex'];
@@ -16,7 +16,7 @@ const empty: Partial<Product> = {
   notes: [],
   longevity: '',
   howToUse: '',
-  images: ['/images/products/fallback.jpg'],
+  images: [],
   bestSeller: false,
   description: '',
 };
@@ -25,10 +25,12 @@ export function AdminProductFormPage() {
   const { id } = useParams();
   const isNew = id === 'new';
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<Partial<Product>>(empty);
-  const [imagesText, setImagesText] = useState('/images/products/fallback.jpg');
+  const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export function AdminProductFormPage() {
         const product = products.find((p) => p.id === id);
         if (!product) throw new Error('Product not found');
         setForm(product);
-        setImagesText(product.images.join('\n'));
+        setImages(product.images ?? []);
       })
       .catch(() => setError('Product not found'))
       .finally(() => setLoading(false));
@@ -52,13 +54,40 @@ export function AdminProductFormPage() {
     });
   };
 
+  const handleFiles = async (fileList: FileList | null) => {
+    if (!fileList?.length) return;
+    setUploading(true);
+    setError('');
+    try {
+      const uploaded: string[] = [];
+      for (const file of Array.from(fileList)) {
+        const { url } = await adminUploadProductImage(file);
+        uploaded.push(url);
+      }
+      setImages((prev) => [...prev, ...uploaded]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (images.length === 0) {
+      setError('Add at least one product photo');
+      return;
+    }
     setSaving(true);
     setError('');
     const payload = {
       ...form,
-      images: imagesText.split('\n').map((s) => s.trim()).filter(Boolean),
+      images,
     };
     try {
       if (isNew) {
@@ -153,13 +182,47 @@ export function AdminProductFormPage() {
           <textarea className="input-field min-h-20" value={form.howToUse ?? ''} onChange={(e) => setForm({ ...form, howToUse: e.target.value })} />
         </label>
 
-        <label className="block text-sm">
-          <span className="text-text-muted mb-1 block">Image paths (one per line)</span>
-          <textarea className="input-field min-h-20 font-mono text-xs" value={imagesText} onChange={(e) => setImagesText(e.target.value)} />
-          <span className="text-xs text-text-muted mt-1 block">e.g. /images/products/blue-intense-1.jpg</span>
-        </label>
+        <div className="space-y-3">
+          <span className="text-sm text-text-muted block">Product photos *</span>
+          <p className="text-xs text-text-muted">
+            Images are stored on Cloudinary. The database only keeps the public image links.
+          </p>
+          {images.length > 0 && (
+            <ul className="flex flex-wrap gap-3">
+              {images.map((url, index) => (
+                <li key={`${url}-${index}`} className="relative w-24 h-24 rounded-lg overflow-hidden border border-border bg-surface">
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white text-xs leading-none"
+                    aria-label="Remove image"
+                  >
+                    ×
+                  </button>
+                  {index === 0 && (
+                    <span className="absolute bottom-0 inset-x-0 bg-black/50 text-white text-[10px] text-center py-0.5">Main</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="text-sm"
+              disabled={uploading}
+              onChange={(e) => handleFiles(e.target.files)}
+            />
+            {uploading && <span className="text-sm text-text-muted">Uploading…</span>}
+          </div>
+          <p className="text-xs text-text-muted">First photo is the shop thumbnail. Upload again to replace — remove old photos you no longer need.</p>
+        </div>
 
-        <button type="submit" className="btn-primary" disabled={saving}>
+        <button type="submit" className="btn-primary" disabled={saving || uploading}>
           {saving ? 'Saving…' : isNew ? 'Create product' : 'Save changes'}
         </button>
       </form>
