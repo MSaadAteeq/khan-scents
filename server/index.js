@@ -22,11 +22,31 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const CLIENT_DEV_URL = process.env.CLIENT_DEV_URL || "http://localhost:5173";
 
+const DEFAULT_ORIGINS = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://khanscents.shop",
+  "https://www.khanscents.shop",
+  "https://khan-scents.onrender.com",
+];
+
+function allowedOrigins() {
+  const fromEnv = (process.env.CLIENT_URL || "")
+    .split(",")
+    .map((value) => value.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  return [...new Set([...DEFAULT_ORIGINS, ...fromEnv])];
+}
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL
-      ? [process.env.CLIENT_URL, "http://localhost:5173", "http://127.0.0.1:5173"]
-      : true,
+    origin(origin, callback) {
+      if (!origin || allowedOrigins().includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
   }),
 );
 app.use(express.json());

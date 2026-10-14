@@ -117,13 +117,16 @@ git push -u origin main
 ## Step 5 — Custom domain (optional)
 
 **Frontend:**
-- Static Site → **Settings** → **Custom Domains** → add `www.khanscents.com`
-- Update DNS at your registrar (Render shows the records)
+- Static Site / Vercel → **Custom Domains** → add `khanscents.shop` and `www.khanscents.shop`
+- Update DNS at your registrar
 
 **Backend:**
-- Web Service → **Custom Domains** → e.g. `api.khanscents.com`
-- Update `VITE_API_URL` on frontend to `https://api.khanscents.com`
-- Update `CLIENT_URL` on backend to `https://www.khanscents.com`
+- Keep `VITE_API_URL` on the frontend as the API host (e.g. `https://khan-scents.onrender.com`)
+- Set `CLIENT_URL` on the API to:
+  ```
+  https://khanscents.shop,https://www.khanscents.shop
+  ```
+  (no trailing slash). Redeploy the API after changing it.
 
 ---
 
@@ -150,7 +153,7 @@ npm run dev
 | Problem | Fix |
 |---------|-----|
 | Shop shows "Failed to load products" | Check `VITE_API_URL` on frontend; wake up backend by visiting `/api/health` |
-| CORS error in browser console | Set `CLIENT_URL` on backend to exact frontend URL (no trailing slash) |
+| CORS error in browser console | Set `CLIENT_URL` on the API to `https://khanscents.shop,https://www.khanscents.shop` (no trailing slash) and redeploy |
 | 404 on `/shop` refresh | Add SPA rewrite rule `/* → /index.html` |
 | Images broken | Ensure `client/public/images/` is committed to Git |
 
