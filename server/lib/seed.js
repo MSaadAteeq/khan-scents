@@ -7,16 +7,16 @@ const DEFAULT_SITE = {
   site: {
     name: "Khan Scents",
     tagline: "Find Your Signature Scent",
-    whatsapp: "923482232129",
-    whatsappDisplay: "+92 348 2232129",
-    email: "saadateeq456@gmail.com",
-    phone: "+92 348 2232129",
+    whatsapp: "923122909152",
+    whatsappDisplay: "+92 312 2909152",
+    email: "khanscentsofficial@gmail.com",
+    phone: "+92 312 2909152",
     instagram: "https://instagram.com/khanscents",
     facebook: "https://facebook.com/khanscents",
     deliveryFee: 300,
     address: "Pakistan — Nationwide Delivery",
-    heroVideo: "https://assets.mixkit.co/videos/48729/48729-720.mp4",
-    heroPoster: "/images/hero-poster.jpg",
+    heroVideo: "https://assets.mixkit.co/videos/20766/20766-720.mp4",
+    heroPoster: "https://assets.mixkit.co/videos/20766/20766-thumb-720-0.jpg",
   },
   faqs: [
     {

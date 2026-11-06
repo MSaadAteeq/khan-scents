@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Order, formatOrder } from "../models/Order.js";
+import { User } from "../models/User.js";
 import { requireAuth, optionalAuth } from "../middleware/auth.js";
 import { sendOrderPlacedEmail, sendAdminNewOrderEmail } from "../lib/email.js";
 import { formatOrderPublic } from "../lib/privacy.js";
@@ -37,8 +38,11 @@ router.post("/", optionalAuth, async (req, res) => {
   const fee = deliveryFee ?? 300;
   const orderId = `KS-${Date.now()}`;
 
-  // Link order to account only when the customer is signed in — never attach guest orders to another user's account by email alone.
-  const userId = req.user?._id || null;
+  let userId = req.user?.role === "admin" ? null : req.user?._id || null;
+  if (!userId) {
+    const existing = await User.findOne({ email, role: "user" }).select("_id");
+    if (existing) userId = existing._id;
+  }
 
   const order = await Order.create({
     orderId,
@@ -58,8 +62,13 @@ router.post("/", optionalAuth, async (req, res) => {
     status: "pending",
   });
 
-  const customerEmail = await sendOrderPlacedEmail(order);
-  await sendAdminNewOrderEmail(order);
+  let customerEmail = { ok: false };
+  try {
+    customerEmail = await sendOrderPlacedEmail(order);
+    await sendAdminNewOrderEmail(order);
+  } catch (err) {
+    console.error("Order email failed:", err.message || err);
+  }
 
   res.status(201).json(formatOrderPublic(order, { emailSent: customerEmail.ok }));
 });
@@ -67,19 +76,10 @@ router.post("/", optionalAuth, async (req, res) => {
 router.get("/mine", requireAuth, async (req, res) => {
   const userEmail = req.user.email.toLowerCase();
   const orders = await Order.find({
-    $or: [{ userId: req.user._id }, { userId: null, "customer.email": userEmail }],
+    $or: [{ userId: req.user._id }, { "customer.email": userEmail }],
   }).sort({ createdAt: -1 });
 
-  // Return only this user's orders — strip other customers' data if any edge case
-  res.json(
-    orders.map((o) => {
-      const formatted = formatOrder(o);
-      if (formatted.customer?.email?.toLowerCase() !== userEmail && String(o.userId) !== String(req.user._id)) {
-        return null;
-      }
-      return formatted;
-    }).filter(Boolean),
-  );
+  res.json(orders.map(formatOrder));
 });
 
 export default router;

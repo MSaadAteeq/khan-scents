@@ -37,24 +37,60 @@ function getResend() {
   return new Resend(apiKey);
 }
 
-async function sendEmail({ to, subject, text, html }) {
+function formatItems(order) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  if (!items.length) return "—";
+  return items
+    .map((item) => `${item.name} × ${item.quantity} — PKR ${(item.price * item.quantity).toLocaleString()}`)
+    .join("\n");
+}
+
+function formatItemsHtml(order) {
+  const items = Array.isArray(order.items) ? order.items : [];
+  if (!items.length) return "<p>—</p>";
+  return `<ul style="padding-left:18px;">${items
+    .map(
+      (item) =>
+        `<li>${item.name} × ${item.quantity} — PKR ${(item.price * item.quantity).toLocaleString()}</li>`,
+    )
+    .join("")}</ul>`;
+}
+
+function shopReplyTo() {
+  return process.env.ADMIN_EMAIL?.trim() || "khanscentsofficial@gmail.com";
+}
+
+async function sendEmail({ to, subject, text, html, replyTo }) {
   const resend = getResend();
-  const from = process.env.RESEND_FROM || "Khan Scents <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM || "Khan Scents Official <orders@khanscents.shop>";
+  const reply = replyTo || shopReplyTo();
 
   if (!resend) {
     console.log(`[email skipped — RESEND_API_KEY not set] ${subject}`);
     return { ok: false, reason: "RESEND_API_KEY not configured" };
   }
 
-  const { data, error } = await resend.emails.send({ from, to, subject, text, html });
+  try {
+    const { data, error } = await resend.emails.send({
+      from,
+      to,
+      subject,
+      text,
+      html,
+      ...(reply ? { replyTo: reply } : {}),
+    });
 
-  if (error) {
-    console.error(`Resend email failed (${maskEmail(to)}):`, error.message || error);
-    return { ok: false, reason: error.message || "Send failed" };
+    if (error) {
+      console.error(`Resend email failed (${maskEmail(to)}):`, error.message || error);
+      return { ok: false, reason: error.message || "Send failed" };
+    }
+
+    console.log(`Email sent (${maskEmail(to)}) — id: ${data?.id}`);
+    return { ok: true, id: data?.id };
+  } catch (err) {
+    console.error(`Resend email threw (${maskEmail(to)}):`, err.message || err);
+    return { ok: false, reason: err.message || "Send failed" };
   }
-
-  console.log(`Email sent (${maskEmail(to)}) — id: ${data?.id}`);
-  return { ok: true, id: data?.id };
 }
 
 function buildEmailContent(order, status) {
@@ -63,6 +99,8 @@ function buildEmailContent(order, status) {
   const label = STATUS_LABELS[status] || status;
   const message = STATUS_MESSAGES[status] || `Your order status is now: ${status}.`;
   const total = o.total?.toLocaleString?.() ?? o.total;
+  const itemsText = formatItems(o);
+  const address = [o.customer.address, o.customer.city, o.customer.postalCode].filter(Boolean).join(", ");
 
   const subject = `Khan Scents — Order ${orderId} ${label}`;
   const text = [
@@ -72,13 +110,19 @@ function buildEmailContent(order, status) {
     "",
     `Order ID: ${orderId}`,
     `Status: ${status}`,
+    `Phone: ${o.customer.phone || "—"}`,
+    `Ship to: ${address}`,
+    `Items:\n${itemsText}`,
+    `Delivery: PKR ${o.deliveryFee?.toLocaleString?.() ?? o.deliveryFee ?? 0}`,
+    `Payment: ${o.paymentMethod}`,
     `Total: PKR ${total}`,
     "",
-    "Questions? Reply to this email or contact us through our website.",
+    `Questions? Reply to this email — it goes to ${shopReplyTo()}.`,
+    "You can also track this order in your Khan Scents account (same email).",
     "",
     "Your personal details are kept private and used only for this order.",
     "",
-    "— Khan Scents",
+    "— Khan Scents Official",
   ].join("\n");
 
   const html = `
@@ -88,11 +132,17 @@ function buildEmailContent(order, status) {
       <table style="margin: 24px 0; border-collapse: collapse; width: 100%;">
         <tr><td style="padding: 8px 0; color: #6d6d6d;">Order ID</td><td style="padding: 8px 0;"><strong>${orderId}</strong></td></tr>
         <tr><td style="padding: 8px 0; color: #6d6d6d;">Status</td><td style="padding: 8px 0; text-transform: capitalize;"><strong>${status}</strong></td></tr>
+        <tr><td style="padding: 8px 0; color: #6d6d6d;">Phone</td><td style="padding: 8px 0;">${o.customer.phone || "—"}</td></tr>
+        <tr><td style="padding: 8px 0; color: #6d6d6d;">Ship to</td><td style="padding: 8px 0;">${address}</td></tr>
+        <tr><td style="padding: 8px 0; color: #6d6d6d; vertical-align: top;">Items</td><td style="padding: 8px 0;">${formatItemsHtml(o)}</td></tr>
+        <tr><td style="padding: 8px 0; color: #6d6d6d;">Delivery</td><td style="padding: 8px 0;">PKR ${o.deliveryFee?.toLocaleString?.() ?? o.deliveryFee ?? 0}</td></tr>
+        <tr><td style="padding: 8px 0; color: #6d6d6d;">Payment</td><td style="padding: 8px 0;">${o.paymentMethod}</td></tr>
         <tr><td style="padding: 8px 0; color: #6d6d6d;">Total</td><td style="padding: 8px 0;"><strong>PKR ${total}</strong></td></tr>
       </table>
-      <p style="color: #6d6d6d; font-size: 14px;">Questions? Reply to this email or contact us through our website.</p>
+      <p style="color: #6d6d6d; font-size: 14px;">Questions? Reply to this email — it goes to ${shopReplyTo()}.</p>
+      <p style="color: #6d6d6d; font-size: 14px;">Track this same order in your Khan Scents account using this email address.</p>
       <p style="color: #6d6d6d; font-size: 12px;">Your personal details are kept private and used only for this order.</p>
-      <p>— Khan Scents</p>
+      <p>— Khan Scents Official</p>
     </div>
   `;
 
@@ -124,7 +174,16 @@ export async function sendOrderPlacedEmail(order) {
 }
 
 export async function sendAdminNewOrderEmail(order) {
-  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  let adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  if (!adminEmail) {
+    try {
+      const { getSiteDoc } = await import("../models/Site.js");
+      const site = await getSiteDoc();
+      adminEmail = site.site?.email?.trim().toLowerCase() || "";
+    } catch {
+      adminEmail = "";
+    }
+  }
   if (!adminEmail) return { ok: false, reason: "ADMIN_EMAIL not set" };
 
   const o = normalizeOrder(order);
@@ -138,10 +197,11 @@ export async function sendAdminNewOrderEmail(order) {
     `Phone: ${o.customer.phone}`,
     `Email: ${o.customer.email || "—"}`,
     `Address: ${o.customer.address}, ${o.customer.city}`,
+    `Items:\n${formatItems(o)}`,
     `Total: PKR ${o.total?.toLocaleString?.() ?? o.total}`,
     `Payment: ${o.paymentMethod}`,
     "",
-    "Update status in the admin panel to notify the customer by email.",
+    "Open the admin Orders page to confirm, ship, or cancel this order.",
   ].join("\n");
 
   const html = `
@@ -150,9 +210,17 @@ export async function sendAdminNewOrderEmail(order) {
       <p><strong>${orderId}</strong></p>
       <p>${o.customer.fullName}<br>${o.customer.phone}<br>${o.customer.email || ""}</p>
       <p>${o.customer.address}, ${o.customer.city}</p>
+      ${formatItemsHtml(o)}
       <p><strong>PKR ${o.total?.toLocaleString?.() ?? o.total}</strong> · ${o.paymentMethod}</p>
+      <p>Open the admin Orders page to update status. The customer is emailed when status changes.</p>
     </div>
   `;
 
-  return sendEmail({ to: adminEmail, subject, text, html });
+  return sendEmail({
+    to: adminEmail,
+    subject,
+    text,
+    html,
+    replyTo: o.customer.email || shopReplyTo(),
+  });
 }

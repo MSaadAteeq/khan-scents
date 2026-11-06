@@ -12,7 +12,7 @@ const router = Router();
 
 const imageUpload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 12 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype?.startsWith("image/")) {
       cb(new Error("Only image files are allowed"));
@@ -21,6 +21,30 @@ const imageUpload = multer({
     cb(null, true);
   },
 });
+
+const GENDERS = new Set(["him", "her", "unisex"]);
+
+function mongoErrorMessage(err) {
+  if (err?.code === 11000) {
+    return "A product with this name or URL slug already exists. Change the name or slug and try again.";
+  }
+  if (err?.name === "ValidationError") {
+    return Object.values(err.errors || {}).map((e) => e.message).join(". ") || "Invalid product data";
+  }
+  return err?.message || "Could not save product";
+}
+
+async function uniqueProductSlug(raw, excludeId) {
+  const base = slugify(raw) || `product-${Date.now()}`;
+  let candidate = base;
+  let n = 2;
+  while (true) {
+    const query = excludeId ? { slug: candidate, _id: { $ne: excludeId } } : { slug: candidate };
+    const taken = await Product.findOne(query).select("_id");
+    if (!taken) return candidate;
+    candidate = `${base}-${n++}`;
+  }
+}
 
 function parseProductImages(images) {
   const list = Array.isArray(images) ? images.map(String).map((s) => s.trim()).filter(Boolean) : [];
@@ -43,11 +67,11 @@ router.post("/upload/product-image", (req, res, next) => {
     return res.status(400).json({ error: "No image file provided" });
   }
   try {
-    const { url } = await uploadProductImage(req.file.buffer, req.file.mimetype);
+    const { url } = await uploadProductImage(req.file.buffer);
     res.json({ url });
   } catch (err) {
     console.error("Cloudinary upload failed:", err.message);
-    res.status(502).json({ error: "Image upload failed" });
+    res.status(502).json({ error: err.message || "Image upload failed" });
   }
 });
 
@@ -63,29 +87,30 @@ router.post("/products", async (req, res) => {
     return res.status(400).json({ error: "Product name is required" });
   }
 
-  let slug = body.slug?.trim() || slugify(body.name);
-  const existing = await Product.findOne({ slug });
-  if (existing) slug = `${slug}-${Date.now()}`;
-
   const parsedImages = parseProductImages(body.images);
   if (parsedImages.error) return res.status(400).json({ error: parsedImages.error });
 
-  const product = await Product.create({
-    slug,
-    name: body.name.trim(),
-    inspiredBy: body.inspiredBy?.trim() || "",
-    size: body.size?.trim() || "50 mL / 1.7 FL. OZ.",
-    price: Number(body.price) || 0,
-    gender: body.gender || "unisex",
-    notes: Array.isArray(body.notes) ? body.notes : [],
-    longevity: body.longevity?.trim() || "",
-    howToUse: body.howToUse?.trim() || "",
-    images: parsedImages.images,
-    bestSeller: Boolean(body.bestSeller),
-    description: body.description?.trim() || "",
-  });
-
-  res.status(201).json(formatProduct(product));
+  try {
+    const slug = await uniqueProductSlug(body.slug || body.name);
+    const product = await Product.create({
+      slug,
+      name: body.name.trim(),
+      inspiredBy: body.inspiredBy?.trim() || "",
+      size: body.size?.trim() || "50 mL / 1.7 FL. OZ.",
+      price: Number(body.price) || 0,
+      gender: GENDERS.has(body.gender) ? body.gender : "unisex",
+      notes: Array.isArray(body.notes) ? body.notes : [],
+      longevity: body.longevity?.trim() || "",
+      howToUse: body.howToUse?.trim() || "",
+      images: parsedImages.images,
+      bestSeller: Boolean(body.bestSeller),
+      description: body.description?.trim() || "",
+    });
+    res.status(201).json(formatProduct(product));
+  } catch (err) {
+    console.error("Create product failed:", err.message);
+    res.status(400).json({ error: mongoErrorMessage(err) });
+  }
 });
 
 router.put("/products/:id", async (req, res) => {
@@ -93,30 +118,35 @@ router.put("/products/:id", async (req, res) => {
   if (!product) return res.status(404).json({ error: "Product not found" });
 
   const body = req.body || {};
-  const slug = body.slug?.trim() || product.slug;
+  try {
+    const incomingSlug = body.slug !== undefined ? String(body.slug).trim() : product.slug;
+    if (incomingSlug && incomingSlug !== product.slug) {
+      product.slug = await uniqueProductSlug(incomingSlug, product._id);
+    } else if (!incomingSlug) {
+      product.slug = await uniqueProductSlug(body.name || product.name, product._id);
+    }
+    if (body.name !== undefined) product.name = body.name.trim();
+    if (body.inspiredBy !== undefined) product.inspiredBy = body.inspiredBy.trim();
+    if (body.size !== undefined) product.size = body.size.trim();
+    if (body.price !== undefined) product.price = Number(body.price);
+    if (body.gender !== undefined) product.gender = GENDERS.has(body.gender) ? body.gender : product.gender;
+    if (body.notes !== undefined) product.notes = body.notes;
+    if (body.longevity !== undefined) product.longevity = body.longevity.trim();
+    if (body.howToUse !== undefined) product.howToUse = body.howToUse.trim();
+    if (body.images !== undefined) {
+      const parsedImages = parseProductImages(body.images);
+      if (parsedImages.error) return res.status(400).json({ error: parsedImages.error });
+      product.images = parsedImages.images;
+    }
+    if (body.bestSeller !== undefined) product.bestSeller = Boolean(body.bestSeller);
+    if (body.description !== undefined) product.description = body.description.trim();
 
-  const slugTaken = await Product.findOne({ slug, _id: { $ne: product._id } });
-  if (slugTaken) return res.status(400).json({ error: "Slug already in use" });
-
-  product.slug = slug;
-  if (body.name !== undefined) product.name = body.name.trim();
-  if (body.inspiredBy !== undefined) product.inspiredBy = body.inspiredBy.trim();
-  if (body.size !== undefined) product.size = body.size.trim();
-  if (body.price !== undefined) product.price = Number(body.price);
-  if (body.gender !== undefined) product.gender = body.gender;
-  if (body.notes !== undefined) product.notes = body.notes;
-  if (body.longevity !== undefined) product.longevity = body.longevity.trim();
-  if (body.howToUse !== undefined) product.howToUse = body.howToUse.trim();
-  if (body.images !== undefined) {
-    const parsedImages = parseProductImages(body.images);
-    if (parsedImages.error) return res.status(400).json({ error: parsedImages.error });
-    product.images = parsedImages.images;
+    await product.save();
+    res.json(formatProduct(product));
+  } catch (err) {
+    console.error("Update product failed:", err.message);
+    res.status(400).json({ error: mongoErrorMessage(err) });
   }
-  if (body.bestSeller !== undefined) product.bestSeller = Boolean(body.bestSeller);
-  if (body.description !== undefined) product.description = body.description.trim();
-
-  await product.save();
-  res.json(formatProduct(product));
 });
 
 router.delete("/products/:id", async (req, res) => {

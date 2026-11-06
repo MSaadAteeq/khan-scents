@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { User, formatUser } from "../models/User.js";
 import { requireAuth, signToken } from "../middleware/auth.js";
+import { attachOrdersToUser } from "../lib/attachOrders.js";
 
 const router = Router();
 
@@ -26,6 +27,7 @@ router.post("/register", async (req, res) => {
     role: "user",
   });
 
+  await attachOrdersToUser(user);
   const token = signToken(user);
   res.status(201).json({ token, user: formatUser(user) });
 });
@@ -41,6 +43,7 @@ router.post("/login", async (req, res) => {
     return res.status(401).json({ error: "Invalid email or password" });
   }
 
+  await attachOrdersToUser(user);
   res.json({ token: signToken(user), user: formatUser(user) });
 });
 

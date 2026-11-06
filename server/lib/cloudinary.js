@@ -21,11 +21,23 @@ function ensureConfigured() {
 }
 
 /** Upload a product image buffer; returns HTTPS URL (file stored on Cloudinary only). */
-export async function uploadProductImage(buffer, mimeType) {
+export async function uploadProductImage(buffer) {
   ensureConfigured();
-  const result = await cloudinary.uploader.upload(
-    `data:${mimeType};base64,${buffer.toString("base64")}`,
-    { folder: "khan-scents/products", resource_type: "image" },
-  );
-  return { url: result.secure_url };
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "khan-scents/products",
+        resource_type: "image",
+        transformation: [{ width: 1600, height: 1600, crop: "limit", quality: "auto:good" }],
+      },
+      (error, result) => {
+        if (error || !result?.secure_url) {
+          reject(error || new Error("Image upload failed"));
+          return;
+        }
+        resolve({ url: result.secure_url });
+      },
+    );
+    stream.end(buffer);
+  });
 }
