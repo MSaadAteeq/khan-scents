@@ -56,8 +56,31 @@ function formatItemsHtml(order) {
     .join("")}</ul>`;
 }
 
+const EMAIL_FONT = "'Poppins', Helvetica, Arial, sans-serif";
+
 function shopReplyTo() {
   return process.env.ADMIN_EMAIL?.trim() || "khanscentsofficial@gmail.com";
+}
+
+function wrapEmailHtml(inner) {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    body, table, td, p, h2, li, strong, div {
+      font-family: ${EMAIL_FONT} !important;
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#f7f6f3;font-family:${EMAIL_FONT};">
+  <div style="font-family:${EMAIL_FONT};max-width:520px;color:#141414;line-height:1.6;padding:24px;">
+    ${inner}
+  </div>
+</body>
+</html>`;
 }
 
 async function sendEmail({ to, subject, text, html, replyTo }) {
@@ -108,7 +131,7 @@ function buildEmailContent(order, status) {
     "",
     message,
     "",
-    `Order ID: ${orderId}`,
+    `Order number: ${orderId}`,
     `Status: ${status}`,
     `Phone: ${o.customer.phone || "—"}`,
     `Ship to: ${address}`,
@@ -125,12 +148,12 @@ function buildEmailContent(order, status) {
     "— Khan Scents Official",
   ].join("\n");
 
-  const html = `
-    <div style="font-family: sans-serif; max-width: 520px; color: #141414; line-height: 1.6;">
+  const html = wrapEmailHtml(`
       <p>Hi ${o.customer.fullName},</p>
       <p>${message}</p>
-      <table style="margin: 24px 0; border-collapse: collapse; width: 100%;">
-        <tr><td style="padding: 8px 0; color: #6d6d6d;">Order ID</td><td style="padding: 8px 0;"><strong>${orderId}</strong></td></tr>
+      <p style="font-size: 22px; font-weight: 600; letter-spacing: 0.04em; margin: 8px 0 0;">${orderId}</p>
+      <table style="margin: 24px 0; border-collapse: collapse; width: 100%; font-family: ${EMAIL_FONT};">
+        <tr><td style="padding: 8px 0; color: #6d6d6d;">Order number</td><td style="padding: 8px 0;"><strong>${orderId}</strong></td></tr>
         <tr><td style="padding: 8px 0; color: #6d6d6d;">Status</td><td style="padding: 8px 0; text-transform: capitalize;"><strong>${status}</strong></td></tr>
         <tr><td style="padding: 8px 0; color: #6d6d6d;">Phone</td><td style="padding: 8px 0;">${o.customer.phone || "—"}</td></tr>
         <tr><td style="padding: 8px 0; color: #6d6d6d;">Ship to</td><td style="padding: 8px 0;">${address}</td></tr>
@@ -143,8 +166,7 @@ function buildEmailContent(order, status) {
       <p style="color: #6d6d6d; font-size: 14px;">Track this same order in your Khan Scents account using this email address.</p>
       <p style="color: #6d6d6d; font-size: 12px;">Your personal details are kept private and used only for this order.</p>
       <p>— Khan Scents Official</p>
-    </div>
-  `;
+  `);
 
   return { subject, text, html };
 }
@@ -192,7 +214,7 @@ export async function sendAdminNewOrderEmail(order) {
   const text = [
     "New Khan Scents order placed.",
     "",
-    `Order ID: ${orderId}`,
+    `Order number: ${orderId}`,
     `Customer: ${o.customer.fullName}`,
     `Phone: ${o.customer.phone}`,
     `Email: ${o.customer.email || "—"}`,
@@ -204,17 +226,15 @@ export async function sendAdminNewOrderEmail(order) {
     "Open the admin Orders page to confirm, ship, or cancel this order.",
   ].join("\n");
 
-  const html = `
-    <div style="font-family: sans-serif; max-width: 520px; line-height: 1.6;">
-      <h2>New order received</h2>
-      <p><strong>${orderId}</strong></p>
+  const html = wrapEmailHtml(`
+      <h2 style="font-family: ${EMAIL_FONT}; font-weight: 600;">New order received</h2>
+      <p style="font-size: 22px; font-weight: 600; letter-spacing: 0.04em;">${orderId}</p>
       <p>${o.customer.fullName}<br>${o.customer.phone}<br>${o.customer.email || ""}</p>
       <p>${o.customer.address}, ${o.customer.city}</p>
       ${formatItemsHtml(o)}
       <p><strong>PKR ${o.total?.toLocaleString?.() ?? o.total}</strong> · ${o.paymentMethod}</p>
       <p>Open the admin Orders page to update status. The customer is emailed when status changes.</p>
-    </div>
-  `;
+  `);
 
   return sendEmail({
     to: adminEmail,

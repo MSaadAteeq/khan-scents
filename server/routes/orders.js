@@ -11,6 +11,24 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+async function nextOrderId() {
+  const last = await Order.findOne({ orderId: /^KS-\d{4,6}$/ })
+    .sort({ createdAt: -1 })
+    .select("orderId")
+    .lean();
+  let next = 1001;
+  if (last?.orderId) {
+    const n = Number(String(last.orderId).slice(3));
+    if (Number.isFinite(n) && n >= 1000) next = n + 1;
+  }
+  for (let i = 0; i < 40; i++) {
+    const orderId = `KS-${next + i}`;
+    const taken = await Order.exists({ orderId });
+    if (!taken) return orderId;
+  }
+  return `KS-${1000 + Math.floor(Math.random() * 9000)}`;
+}
+
 router.post("/", optionalAuth, async (req, res) => {
   const { customer, items, deliveryFee, total, paymentMethod } = req.body || {};
 
@@ -36,7 +54,7 @@ router.post("/", optionalAuth, async (req, res) => {
   }
 
   const fee = deliveryFee ?? 300;
-  const orderId = `KS-${Date.now()}`;
+  const orderId = await nextOrderId();
 
   let userId = req.user?.role === "admin" ? null : req.user?._id || null;
   if (!userId) {
