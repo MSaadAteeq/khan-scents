@@ -10,7 +10,7 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <article className="group card overflow-hidden flex flex-col">
       <Link
-        to={`/product/${product.slug}`}
+        to={`/product/${encodeURIComponent(product.slug)}`}
         className="relative block aspect-[4/5] bg-surface-muted overflow-hidden"
       >
         <ProductImage
@@ -20,7 +20,7 @@ export function ProductCard({ product }: { product: Product }) {
         />
       </Link>
       <div className="p-5 flex flex-col flex-1 gap-1.5">
-        <Link to={`/product/${product.slug}`}>
+        <Link to={`/product/${encodeURIComponent(product.slug)}`}>
           <h3 className="text-base font-semibold text-text group-hover:text-accent transition-colors">
             {product.name}
           </h3>

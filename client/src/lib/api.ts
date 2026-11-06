@@ -50,7 +50,7 @@ export async function fetchProducts(): Promise<Product[]> {
 }
 
 export async function fetchProduct(slug: string): Promise<Product> {
-  const res = await fetch(apiUrl(`/api/products/${slug}`));
+  const res = await fetch(apiUrl(`/api/products/${encodeURIComponent(slug)}`));
   if (!res.ok) throw new Error('Product not found');
   return res.json();
 }

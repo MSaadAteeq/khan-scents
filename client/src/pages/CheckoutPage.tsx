@@ -116,7 +116,7 @@ export function CheckoutPage() {
             {field('phone', 'Phone Number', { type: 'tel' })}
             {field('email', 'Email for order confirmation', { type: 'email' })}
             <p className="text-xs text-text-muted -mt-3">
-              Used only to send your order confirmation and delivery updates. We never sell or share your email.
+              Confirmation and updates are emailed from Khan Scents Official. Use the same email as your account to see this order under My account. Reply to the email to reach us.
             </p>
             {field('address', 'Complete Address', { rows: 3 })}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -143,7 +143,7 @@ export function CheckoutPage() {
               {submitting ? 'Placing order...' : 'Place order'}
             </button>
             <p className="text-xs text-text-muted text-center">
-              You will receive an email confirmation and updates about your order.
+              You will get this order by email and, with an account on the same email, on your account page.
             </p>
           </form>
 

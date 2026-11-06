@@ -60,7 +60,7 @@ export function AdminSettingsPage() {
         {field('phone', 'Phone (display)')}
         {field('email', 'Email')}
         {field('whatsappDisplay', 'WhatsApp (display)')}
-        {field('whatsapp', 'WhatsApp number (digits only, e.g. 923482232129)')}
+        {field('whatsapp', 'WhatsApp number (digits only, e.g. 923122909152)')}
         {field('deliveryFee', 'Delivery fee (PKR)', 'number')}
 
         <h2 className="font-semibold pt-4">Social</h2>

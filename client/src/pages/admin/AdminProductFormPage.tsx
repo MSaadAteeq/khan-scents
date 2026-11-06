@@ -6,6 +6,30 @@ import type { Gender, Note, Product } from '../../types/product';
 const GENDERS: Gender[] = ['him', 'her', 'unisex'];
 const NOTES: Note[] = ['fresh', 'woody', 'sweet', 'long-lasting'];
 
+async function prepareImageFile(file: File): Promise<File> {
+  if (!file.type.startsWith('image/')) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const max = 1600;
+    const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+    if (!blob) return file;
+    const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+    return new File([blob], name, { type: 'image/jpeg' });
+  } catch {
+    return file;
+  }
+}
+
 const empty: Partial<Product> = {
   name: '',
   slug: '',
@@ -61,7 +85,8 @@ export function AdminProductFormPage() {
     try {
       const uploaded: string[] = [];
       for (const file of Array.from(fileList)) {
-        const { url } = await adminUploadProductImage(file);
+        const prepared = await prepareImageFile(file);
+        const { url } = await adminUploadProductImage(prepared);
         uploaded.push(url);
       }
       setImages((prev) => [...prev, ...uploaded]);
@@ -219,7 +244,9 @@ export function AdminProductFormPage() {
             />
             {uploading && <span className="text-sm text-text-muted">Uploading…</span>}
           </div>
-          <p className="text-xs text-text-muted">First photo is the shop thumbnail. Upload again to replace — remove old photos you no longer need.</p>
+          <p className="text-xs text-text-muted">
+            First photo is the shop thumbnail. Photos are compressed before upload so large camera files still work. You can add as many products as you need.
+          </p>
         </div>
 
         <button type="submit" className="btn-primary" disabled={saving || uploading}>

@@ -28,13 +28,13 @@ export function CartPage() {
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
               <div key={item.slug} className="card p-4 flex gap-4">
-                <Link to={`/product/${item.slug}`} className="w-20 h-24 shrink-0 overflow-hidden rounded-md bg-surface-muted">
+                <Link to={`/product/${encodeURIComponent(item.slug)}`} className="w-20 h-24 shrink-0 overflow-hidden rounded-md bg-surface-muted">
                   <ProductImage src={item.image} alt={item.name} className="h-full w-full object-cover" />
                 </Link>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between gap-4">
                     <div>
-                      <Link to={`/product/${item.slug}`} className="font-semibold text-text hover:text-accent">
+                      <Link to={`/product/${encodeURIComponent(item.slug)}`} className="font-semibold text-text hover:text-accent">
                         {item.name}
                       </Link>
                       <p className="text-xs text-text-muted mt-1">{item.size}</p>

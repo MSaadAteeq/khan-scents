@@ -40,7 +40,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const lightText = isHome && !scrolled;
+  const lightText = isHome && !scrolled && !menuOpen;
   const transparentNav = isHome && !scrolled && !menuOpen;
 
   useEffect(() => {
@@ -48,7 +48,7 @@ export function Navbar() {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -61,16 +61,14 @@ export function Navbar() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         transparentNav
-          ? 'bg-transparent'
-          : 'bg-surface/95 backdrop-blur-md border-b border-border shadow-sm'
+          ? 'bg-transparent text-white'
+          : 'bg-surface/95 text-text backdrop-blur-md border-b border-border shadow-sm'
       }`}
     >
       <div className="container-page flex items-center justify-between h-16">
         <Link
           to="/"
-          className={`font-sans text-base font-bold tracking-[0.18em] uppercase ${
-            lightText ? 'text-white' : 'text-text'
-          }`}
+          className="font-sans text-base font-bold tracking-[0.18em] uppercase text-inherit"
           onClick={() => setMenuOpen(false)}
         >
           Khan Scents
