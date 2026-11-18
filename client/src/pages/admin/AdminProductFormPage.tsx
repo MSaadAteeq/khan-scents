@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { adminCreateProduct, adminGetProducts, adminUpdateProduct, adminUploadProductImage } from '../../lib/api';
 import type { Gender, Note, Product } from '../../types/product';
 
@@ -47,7 +47,8 @@ const empty: Partial<Product> = {
 
 export function AdminProductFormPage() {
   const { id } = useParams();
-  const isNew = id === 'new';
+  const { pathname } = useLocation();
+  const isNew = !id || id === 'new' || pathname.endsWith('/products/new');
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<Partial<Product>>(empty);
