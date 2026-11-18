@@ -28,7 +28,7 @@ services:
       - key: RESEND_API_KEY
         sync: false
       - key: RESEND_FROM
-        value: "Khan Scents <onboarding@resend.dev>"
+        value: "Khan Scents <orders@khanscents.shop>"
 
 staticSites:
   - name: khan-scents-frontend

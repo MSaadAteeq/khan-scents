@@ -24,6 +24,10 @@ const imageUpload = multer({
 
 const GENDERS = new Set(["him", "her", "unisex"]);
 
+function isMongoId(id) {
+  return typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id);
+}
+
 function mongoErrorMessage(err) {
   if (err?.code === 11000) {
     return "A product with this name or URL slug already exists. Change the name or slug and try again.";
@@ -114,7 +118,15 @@ router.post("/products", async (req, res) => {
 });
 
 router.put("/products/:id", async (req, res) => {
-  const product = await Product.findById(req.params.id);
+  if (!isMongoId(req.params.id)) {
+    return res.status(400).json({ error: "Invalid product id" });
+  }
+  let product;
+  try {
+    product = await Product.findById(req.params.id);
+  } catch (err) {
+    return res.status(400).json({ error: mongoErrorMessage(err) });
+  }
   if (!product) return res.status(404).json({ error: "Product not found" });
 
   const body = req.body || {};
@@ -150,9 +162,16 @@ router.put("/products/:id", async (req, res) => {
 });
 
 router.delete("/products/:id", async (req, res) => {
-  const product = await Product.findByIdAndDelete(req.params.id);
-  if (!product) return res.status(404).json({ error: "Product not found" });
-  res.json({ ok: true });
+  if (!isMongoId(req.params.id)) {
+    return res.status(400).json({ error: "Invalid product id" });
+  }
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ error: "Product not found" });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(400).json({ error: mongoErrorMessage(err) });
+  }
 });
 
 // ——— Site settings ———

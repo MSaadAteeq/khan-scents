@@ -47,7 +47,7 @@ for ($i = 0; $i -lt $ig.Count; $i++) {
 $videoDir = Join-Path $PSScriptRoot "..\client\public\videos"
 New-Item -ItemType Directory -Force -Path $videoDir | Out-Null
 Write-Host "Downloading hero video..."
-Invoke-WebRequest -Uri "https://assets.mixkit.co/videos/48729/48729-720.mp4" -OutFile (Join-Path $videoDir "hero.mp4") -UseBasicParsing
-Invoke-WebRequest -Uri "https://assets.mixkit.co/videos/48729/48729-thumb-720-3.jpg" -OutFile (Join-Path $base "hero-poster.jpg") -UseBasicParsing
+Invoke-WebRequest -Uri "https://assets.mixkit.co/videos/20766/20766-720.mp4" -OutFile (Join-Path $videoDir "hero.mp4") -UseBasicParsing
+Invoke-WebRequest -Uri "https://assets.mixkit.co/videos/20766/20766-thumb-720-0.jpg" -OutFile (Join-Path $base "hero-poster.jpg") -UseBasicParsing
 
 Write-Host "Done."

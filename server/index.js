@@ -28,6 +28,7 @@ const DEFAULT_ORIGINS = [
   "https://khanscents.shop",
   "https://www.khanscents.shop",
   "https://khan-scents.onrender.com",
+  "https://khan-scents-frontend.onrender.com",
 ];
 
 function allowedOrigins() {
@@ -103,4 +104,12 @@ async function start() {
 start().catch((err) => {
   console.error("Failed to start server:", err.message);
   process.exit(1);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled rejection:", err?.message || err);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception:", err?.message || err);
 });
