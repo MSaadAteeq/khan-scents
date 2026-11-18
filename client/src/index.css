@@ -273,3 +273,27 @@ textarea::placeholder {
 .font-sans {
   font-family: var(--font-sans);
 }
+
+.hero-video {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  height: 100%;
+  width: auto;
+  max-width: none;
+  transform: translateY(-50%);
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .hero-video {
+    top: 0;
+    left: 50%;
+    right: auto;
+    width: auto;
+    height: auto;
+    min-width: 100%;
+    min-height: 100%;
+    transform: translate(calc(-50% - 2vw), 0);
+  }
+}

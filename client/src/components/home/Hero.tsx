@@ -12,13 +12,13 @@ export function Hero() {
   return (
     <section className="relative min-h-[100svh] flex items-center overflow-hidden bg-dark text-white">
       <div
-        className="absolute inset-0 bg-cover bg-center"
+        className="absolute inset-0 bg-cover bg-right md:bg-center"
         style={{ backgroundImage: `url('${poster}')` }}
         aria-hidden
       />
       {!videoFailed && (
         <video
-          className="absolute inset-0 h-full w-full object-cover"
+          className="hero-video"
           autoPlay
           muted
           loop
@@ -29,7 +29,7 @@ export function Hero() {
           <source src={site.heroVideo} type="video/mp4" />
         </video>
       )}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/40 to-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/25" />
 
       <div className="relative container-page w-full pt-20">
         <motion.div
