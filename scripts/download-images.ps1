@@ -1,6 +1,6 @@
-# Downloads perfume placeholder images into client/public/images
+﻿# Downloads perfume placeholder images into client/public/images
 $base = Join-Path $PSScriptRoot "..\client\public\images"
-$dirs = @("products", "categories", "instagram")
+$dirs = @("products", "categories", "social")
 foreach ($d in $dirs) { New-Item -ItemType Directory -Force -Path (Join-Path $base $d) | Out-Null }
 
 $pexels = "https://images.pexels.com/photos/{0}/pexels-photo-{0}.jpeg?auto=compress&cs=tinysrgb&w=800"
@@ -34,15 +34,9 @@ foreach ($slug in $pairs.Keys) {
 }
 
 Save-Image 965989 (Join-Path $base "products\fallback.jpg")
-Save-Image 965989 (Join-Path $base "categories\for-him.jpg")
-Save-Image 1103909 (Join-Path $base "categories\for-her.jpg")
-Save-Image 1180669 (Join-Path $base "categories\unisex.jpg")
-Invoke-WebRequest -Uri ($pexelsLg -f 6728390) -OutFile (Join-Path $base "about-bg.jpg") -UseBasicParsing
+# Category tiles and about-bg are custom perfume photos — do not overwrite with stock Pexels IDs.
 
-$ig = @(965989, 336372, 1180669, 1373714, 6728390, 6958692)
-for ($i = 0; $i -lt $ig.Count; $i++) {
-  Save-Image $ig[$i] (Join-Path $base "instagram\$('{0:D2}' -f ($i+1)).jpg")
-}
+# Social tiles are custom Facebook / Instagram photos — do not overwrite.
 
 $videoDir = Join-Path $PSScriptRoot "..\client\public\videos"
 New-Item -ItemType Directory -Force -Path $videoDir | Out-Null

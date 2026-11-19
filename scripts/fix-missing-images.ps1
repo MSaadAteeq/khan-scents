@@ -21,8 +21,7 @@ $required = @(
   "images\products\pure-blanc-1.jpg", "images\products\pure-blanc-2.jpg",
   "images\products\golden-spire-1.jpg", "images\products\golden-spire-2.jpg",
   "images\categories\for-him.jpg", "images\categories\for-her.jpg", "images\categories\unisex.jpg",
-  "images\instagram\01.jpg", "images\instagram\02.jpg", "images\instagram\03.jpg",
-  "images\instagram\04.jpg", "images\instagram\05.jpg", "images\instagram\06.jpg",
+  "images\social\facebook.jpg", "images\social\instagram.jpg",
   "images\about-bg.jpg"
 )
 
