@@ -30,8 +30,8 @@ const siteSchema = new mongoose.Schema(
       whatsappDisplay: { type: String, default: "+92 312 2909152" },
       email: { type: String, default: "khanscentsofficial@gmail.com" },
       phone: { type: String, default: "+92 312 2909152" },
-      instagram: { type: String, default: "https://instagram.com/khanscents" },
-      facebook: { type: String, default: "https://facebook.com/khanscents" },
+      instagram: { type: String, default: "https://www.instagram.com/khanscents2026?avpt=c3UyNGJ6dmloZDV1" },
+      facebook: { type: String, default: "https://www.facebook.com/share/1DWz5E9X3G/" },
       deliveryFee: { type: Number, default: 300 },
       address: { type: String, default: "Pakistan — Nationwide Delivery" },
       heroVideo: {
