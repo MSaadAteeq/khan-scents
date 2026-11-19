@@ -16,19 +16,15 @@ export const productImages: Record<string, [string, string]> = {
 };
 
 export const categoryImages = {
-  him: '/images/categories/for-him.jpg',
-  her: '/images/categories/for-her.jpg',
-  unisex: '/images/categories/unisex.jpg',
+  him: '/images/categories/for-him.jpg?v=2',
+  her: '/images/categories/for-her.jpg?v=2',
+  unisex: '/images/categories/unisex.jpg?v=2',
 };
 
-export const instagramImages = [
-  '/images/instagram/01.jpg',
-  '/images/instagram/02.jpg',
-  '/images/instagram/03.jpg',
-  '/images/instagram/04.jpg',
-  '/images/instagram/05.jpg',
-  '/images/instagram/06.jpg',
-];
+export const socialImages = {
+  facebook: '/images/social/facebook.jpg?v=2',
+  instagram: '/images/social/instagram.jpg?v=2',
+};
 
-export const aboutBackground = '/images/about-bg.jpg';
+export const aboutBackground = '/images/about-bg.jpg?v=2';
 export const imageFallback = '/images/products/fallback.jpg';

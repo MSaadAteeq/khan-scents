@@ -8,7 +8,7 @@ export function ContactPage() {
     { label: 'WhatsApp', value: site.whatsappDisplay, href: whatsappChatUrl('Hi Khan Scents — I have a question.', site.whatsapp) },
     { label: 'Phone', value: site.phone, href: `tel:${site.phone.replace(/\s/g, '')}` },
     { label: 'Email', value: site.email, href: `mailto:${site.email}` },
-    { label: 'Instagram', value: '@khanscents', href: site.instagram },
+    { label: 'Instagram', value: '@khanscents2026', href: site.instagram },
     { label: 'Facebook', value: 'Khan Scents', href: site.facebook },
   ];
   return (
